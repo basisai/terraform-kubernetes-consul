@@ -7,6 +7,9 @@ provider. This module makes use of the official Hashicorp
 For more information regarding Consul's integration with Kubernetes, see the
 [documentation](https://www.consul.io/docs/platform/k8s/index.html).
 
+This module is published on
+[Terraform Registry](https://registry.terraform.io/modules/basisai/consul/kubernetes/latest).
+
 ## Requirements
 
 You will need to have the following resources available:
