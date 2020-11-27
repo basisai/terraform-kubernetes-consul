@@ -1,0 +1,75 @@
+replicaCount: ${replica}
+
+rbac:
+  # Specifies whether RBAC resources should be created
+  create: ${rbac_enabled}
+  pspEnabled: ${psp_emabled}
+  pspUseAppArmor: true
+serviceAccount:
+  # Specifies whether a ServiceAccount should be created
+  create: ${rbac_enabled}
+  # The name of the ServiceAccount to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name:
+
+image:
+  repository: ${image}
+  tag: ${tag}
+
+consulServer: ${consul_server_and_port}
+
+# Flags - for a list visit https://github.com/prometheus/consul_exporter#flags
+options: ${options}
+
+service:
+  type: ClusterIP
+  port: 9107
+  annotations: ${service_annotations}
+
+ingress:
+  enabled: false
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  path: /
+  hosts:
+    - chart-example.local
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
+
+resources: ${resources}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+tolerations: ${tolerations}
+
+affinity: ${affinity}
+
+# Extra environment variables
+extraEnv: ${env}
+
+initContainers: ${init_containers}
+
+# Extra containers for the exporter pod
+extraContainers: ${extra_containers}
+
+# Extra Volumes for the pod
+extraVolumes: ${extra_volumes}
+# - name: example
+#   configMap:
+#     name: example
+
+# Extra Volume Mounts for the exporter container
+extraVolumeMounts: ${extra_volume_mounts}
+# - name: example
+#   mountPath: /example
