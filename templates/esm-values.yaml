@@ -1,0 +1,83 @@
+replicaCount: ${replica}
+
+image:
+  repository: ${image}
+  tag: ${tag}
+
+resources: ${resources}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+env: ${env}
+
+initContainerSetSysCtl: ${init_container_set_sysctl}
+
+config:
+  logLevel: "${log_level}"
+
+  # The service name for this agent to use when registering itself with Consul.
+  serviceName: "${service_name}"
+
+  # The service tag for this agent to use when registering itself with Consul.
+  # ESM instances that share a service name/tag combination will have the work
+  # of running health checks and pings for any external nodes in the catalog
+  # divided evenly amongst themselves.
+  serviceTag: "${service_tag}"
+
+  # The directory in the Consul KV store to use for storing runtime data.
+  kvPath: "${kv_path}"
+
+  # The node metadata values used for the ESM to qualify a node in the catalog
+  # as an "external node".
+
+  externalNodeMeta: ${external_node_meta}
+  # The length of time to wait before reaping an external node due to failed
+  # pings.
+  nodeReconnectTimeout: "${node_reconnect_timeout}"
+
+  # The interval to ping and update coordinates for external nodes that have
+  # 'external-probe' set to true. By default, ESM will attempt to ping and
+  # update the coordinates for all nodes it is watching every 10 seconds.
+  nodeProbeInterval: "${node_probe_interval}"
+
+  # The address of the local Consul agent. Can also be provided through the
+  # CONSUL_HTTP_ADDR environment variable.
+  httpAddr: "${http_addr}"
+
+  # If you are running Consul using the Consul Helm Chart, you can opt to configure
+  # consul-esm to use the local Consul Agent Daemonset pod
+  useNodeAgent:
+    enabled: ${use_node_agent}
+    port: ${node_agent_port}
+
+  # The method to use for pinging external nodes. Defaults to "udp" but can
+  # also be set to "socket" to use ICMP (which requires root privileges).
+  pingType: "${ping_type}"
+
+  tls:
+    # Enable TLS for Consul
+    enabled: ${tls_enabled}
+    # CA Certificate for Consul Server
+    cacert: ${tls_cacert}
+    # SNI server name to use for server TLS certificate validation
+    serverName: null
+    # If autoEncrypt is on, this should be set to true
+    autoEncrypt:
+      enabled: ${tls_enable_auto_encrypt}
+      consulK8sImage: ${consul_k8s_image}
+      consulTemplateImage: ${consul_template_image}
+      server:
+        address: ${server_address}
+        port: 8501
+
+affinity: ${affinity}
+
+tolerations: ${tolerations}
