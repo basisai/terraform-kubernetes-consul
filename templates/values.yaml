@@ -844,7 +844,7 @@ dns:
   # Set a predefined cluster IP for the DNS service.
   # Useful if you need to reference the DNS service's IP
   # address in CoreDNS config.
-  @type: string
+  # @type: string
   clusterIP: null
 
   # Extra annotations to attach to the dns service
