@@ -51,6 +51,7 @@ locals {
     client_annotations    = jsonencode(var.client_annotations)
 
     server_security_context = jsonencode(var.server_security_context)
+    client_security_context = jsonencode(var.client_security_context)
 
     tls_enabled                    = var.tls_enabled
     tls_server_additional_dns_sans = jsonencode(var.tls_server_additional_dns_sans)
