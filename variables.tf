@@ -15,7 +15,7 @@ variable "chart_repository" {
 
 variable "chart_version" {
   description = "Version of Chart to install. Set to empty to install the latest version"
-  default     = "0.27.0"
+  default     = "0.28.0"
 }
 
 variable "chart_namespace" {
@@ -50,7 +50,7 @@ variable "consul_image_name" {
 
 variable "consul_image_tag" {
   description = "Docker image tag of Consul to run"
-  default     = "1.9.0"
+  default     = "1.9.1"
 }
 
 variable "consul_k8s_image" {
@@ -60,7 +60,7 @@ variable "consul_k8s_image" {
 
 variable "consul_k8s_tag" {
   description = "Image tag of the consul-k8s binary to run"
-  default     = "0.21.0"
+  default     = "0.22.0"
 }
 
 variable "image_envoy" {
@@ -109,6 +109,21 @@ variable "server_resources" {
       cpu    = "100m"
       memory = "100Mi"
     }
+  }
+}
+
+variable "server_update_partition" {
+  description = "This value is used to carefully control a rolling update of Consul server agents. This value specifies the partition (https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#partitions) for performing a rolling update. Please read the linked Kubernetes documentation and https://www.consul.io/docs/k8s/upgrade#upgrading-consul-servers for more information."
+  default     = 0
+}
+
+variable "server_security_context" {
+  description = "Security context for server pods"
+  default = {
+    runAsNonRoot = true
+    runAsGroup   = 1000
+    runAsUser    = 100
+    fsGroup      = 1000
   }
 }
 
@@ -181,6 +196,16 @@ variable "client_resources" {
 variable "client_extra_config" {
   description = "Additional configuration to include for client agents"
   default     = {}
+}
+
+variable "client_security_context" {
+  description = "Pod security context for client pods"
+  default = {
+    runAsNonRoot = true
+    runAsGroup   = 1000
+    runAsUser    = 100
+    fsGroup      = 1000
+  }
 }
 
 variable "client_extra_volumes" {

@@ -111,7 +111,7 @@ You can do so by running `kubectl get configmap/coredns -n kube-system -o yaml`.
 | chart\_namespace | Namespace to install the chart into | `string` | `"default"` | no |
 | chart\_repository | Helm repository for the chart | `string` | `"https://helm.releases.hashicorp.com"` | no |
 | chart\_timeout | Timeout to wait for the Chart to be deployed. The chart waits for all Daemonset pods to be healthy before ending. Increase this for larger clusers to avoid timeout | `number` | `1800` | no |
-| chart\_version | Version of Chart to install. Set to empty to install the latest version | `string` | `"0.27.0"` | no |
+| chart\_version | Version of Chart to install. Set to empty to install the latest version | `string` | `"0.28.0"` | no |
 | client\_annotations | A YAML string for client pods | `string` | `""` | no |
 | client\_enabled | Enable running Consul client agents on every Kubernetes node | `string` | `"-"` | no |
 | client\_extra\_config | Additional configuration to include for client agents | `map` | `{}` | no |
@@ -119,6 +119,7 @@ You can do so by running `kubectl get configmap/coredns -n kube-system -o yaml`.
 | client\_grpc | Enable GRPC port for clients. Required for Connect Inject | `bool` | `true` | no |
 | client\_priority\_class | Priority class for clients | `string` | `""` | no |
 | client\_resources | Resources for clients | `map` | <pre>{<br>  "limits": {<br>    "cpu": "100m",<br>    "memory": "100Mi"<br>  },<br>  "requests": {<br>    "cpu": "100m",<br>    "memory": "100Mi"<br>  }<br>}</pre> | no |
+| client\_security\_context | Pod security context for client pods | `map` | <pre>{<br>  "fsGroup": 1000,<br>  "runAsGroup": 1000,<br>  "runAsNonRoot": true,<br>  "runAsUser": 100<br>}</pre> | no |
 | client\_tolerations | A YAML string that can be templated via helm specifying the tolerations for client pods | `string` | `""` | no |
 | configure\_core\_dns | Configure core-dns and OVERWRITE it to resolve .consul domains with Consul DNS | `bool` | `false` | no |
 | configure\_kube\_dns | Configure kube-dns and OVERWRITE it to resolve .consul domains with Consul DNS | `bool` | `false` | no |
@@ -137,9 +138,9 @@ You can do so by running `kubectl get configmap/coredns -n kube-system -o yaml`.
 | connect\_inject\_tolerations | Template string for Connect Inject Tolerations | `string` | `""` | no |
 | consul\_domain | Top level Consul domain for DNS queries | `string` | `"consul"` | no |
 | consul\_image\_name | Docker Image of Consul to run | `string` | `"consul"` | no |
-| consul\_image\_tag | Docker image tag of Consul to run | `string` | `"1.9.0"` | no |
+| consul\_image\_tag | Docker image tag of Consul to run | `string` | `"1.9.1"` | no |
 | consul\_k8s\_image | Docker image of the consul-k8s binary to run | `string` | `"hashicorp/consul-k8s"` | no |
-| consul\_k8s\_tag | Image tag of the consul-k8s binary to run | `string` | `"0.21.0"` | no |
+| consul\_k8s\_tag | Image tag of the consul-k8s binary to run | `string` | `"0.22.0"` | no |
 | consul\_template\_image | Image for Consul Template | `string` | `"hashicorp/consul-template:0.25.1-light"` | no |
 | controller\_enable | Enable Consul Configuration Entries CRD Controller | `bool` | `false` | no |
 | controller\_log\_level | CRD Controller Log level. | `string` | `"info"` | no |
@@ -220,9 +221,11 @@ You can do so by running `kubectl get configmap/coredns -n kube-system -o yaml`.
 | server\_priority\_class | Priority class for servers | `string` | `""` | no |
 | server\_replicas | Number of server replicas to run | `number` | `5` | no |
 | server\_resources | Resources for server | `map` | <pre>{<br>  "limits": {<br>    "cpu": "100m",<br>    "memory": "100Mi"<br>  },<br>  "requests": {<br>    "cpu": "100m",<br>    "memory": "100Mi"<br>  }<br>}</pre> | no |
+| server\_security\_context | Security context for server pods | `map` | <pre>{<br>  "fsGroup": 1000,<br>  "runAsGroup": 1000,<br>  "runAsNonRoot": true,<br>  "runAsUser": 100<br>}</pre> | no |
 | server\_storage | This defines the disk size for configuring the servers' StatefulSet storage. For dynamically provisioned storage classes, this is the desired size. For manually defined persistent volumes, this should be set to the disk size of the attached volume. | `string` | `"10Gi"` | no |
 | server\_storage\_class | The StorageClass to use for the servers' StatefulSet storage. It must be able to be dynamically provisioned if you want the storage to be automatically created. For example, to use Local storage classes, the PersistentVolumeClaims would need to be manually created. An empty value will use the Kubernetes cluster's default StorageClass. | `string` | `""` | no |
 | server\_tolerations | A YAML string that can be templated via helm specifying the tolerations for server pods | `string` | `""` | no |
+| server\_update\_partition | This value is used to carefully control a rolling update of Consul server agents. This value specifies the partition (https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#partitions) for performing a rolling update. Please read the linked Kubernetes documentation and https://www.consul.io/docs/k8s/upgrade#upgrading-consul-servers for more information. | `number` | `0` | no |
 | sync\_add\_k8s\_namespace\_suffix | Appends Kubernetes namespace suffix to each service name synced to Consul, separated by a dash. | `bool` | `true` | no |
 | sync\_affinity | YAML template string for Sync Catalog affinity | `string` | `""` | no |
 | sync\_by\_default | If true, all valid services in K8S are synced by default. If false, the service must be annotated properly to sync. In either case an annotation can override the default. | `bool` | `true` | no |
