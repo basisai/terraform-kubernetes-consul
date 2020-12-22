@@ -112,6 +112,21 @@ variable "server_resources" {
   }
 }
 
+variable "server_update_partition" {
+  description = "This value is used to carefully control a rolling update of Consul server agents. This value specifies the partition (https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#partitions) for performing a rolling update. Please read the linked Kubernetes documentation and https://www.consul.io/docs/k8s/upgrade#upgrading-consul-servers for more information."
+  default     = 0
+}
+
+variable "server_security_context" {
+  description = "Security context for server pods"
+  default = {
+    runAsNonRoot = true
+    runAsGroup   = 1000
+    runAsUser    = 100
+    fsGroup      = 1000
+  }
+}
+
 variable "server_extra_config" {
   description = "Additional configuration to include for servers in JSON/HCL"
   default     = {}
@@ -181,6 +196,16 @@ variable "client_resources" {
 variable "client_extra_config" {
   description = "Additional configuration to include for client agents"
   default     = {}
+}
+
+variable "client_security_context" {
+  description = "Pod security context for client pods"
+  default = {
+    runAsNonRoot = true
+    runAsGroup   = 1000
+    runAsUser    = 100
+    fsGroup      = 1000
+  }
 }
 
 variable "client_extra_volumes" {

@@ -39,6 +39,8 @@ locals {
     server_priority_class = var.server_priority_class
     server_annotations    = jsonencode(var.server_annotations)
 
+    server_update_partition = var.server_update_partition
+
     client_enabled        = jsonencode(var.client_enabled)
     client_grpc           = var.client_grpc
     client_resources      = yamlencode(var.client_resources)
@@ -47,6 +49,8 @@ locals {
     client_tolerations    = jsonencode(var.client_tolerations)
     client_priority_class = var.client_priority_class
     client_annotations    = jsonencode(var.client_annotations)
+
+    server_security_context = jsonencode(var.server_security_context)
 
     tls_enabled                    = var.tls_enabled
     tls_server_additional_dns_sans = jsonencode(var.tls_server_additional_dns_sans)

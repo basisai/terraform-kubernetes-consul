@@ -274,7 +274,7 @@ server:
   # were joined into the same datacenter and each cluster ran a certain number
   # of servers.
   # @type: int
-  bootstrapExpect: ${server_replicas}
+  bootstrapExpect: null
 
   # [Enterprise Only] This value refers to a Kubernetes secret that you have created
   # that contains your enterprise license. It is required if you are using an
@@ -288,7 +288,6 @@ server:
     secretName: null
     # The key within the Kubernetes secret that holds the enterprise license.
     secretKey: null
-
 
   # Exposes the servers' gossip and RPC ports as hostPorts. To enable a client
   # agent outside of the k8s cluster to join the datacenter, you would need to
@@ -362,18 +361,18 @@ server:
   # by the OpenShift platform.
   # @type: map
   # @recurse: false
-  securityContext:
-    runAsNonRoot: true
-    runAsGroup: 1000
-    runAsUser: 100
-    fsGroup: 1000
+  securityContext: ${server_security_context}
+    # runAsNonRoot: true
+    # runAsGroup: 1000
+    # runAsUser: 100
+    # fsGroup: 1000
 
   # This value is used to carefully
   # control a rolling update of Consul server agents. This value specifies the
   # partition (https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#partitions)
   # for performing a rolling update. Please read the linked Kubernetes documentation
   # and https://www.consul.io/docs/k8s/upgrade#upgrading-consul-servers for more information.
-  updatePartition: 0
+  updatePartition: ${server_update_partition}
 
   # This configures the PodDisruptionBudget (https://kubernetes.io/docs/tasks/run-application/configure-pdb/)
   # for the server cluster.
@@ -637,11 +636,11 @@ client:
   # by the OpenShift platform.
   # @type: map
   # @recurse: false
-  securityContext:
-    runAsNonRoot: true
-    runAsGroup: 1000
-    runAsUser: 100
-    fsGroup: 1000
+  securityContext: ${client_security_context}
+    # runAsNonRoot: true
+    # runAsGroup: 1000
+    # runAsUser: 100
+    # fsGroup: 1000
 
   # A raw string of extra JSON configuration (https://consul.io/docs/agent/options) for Consul
   # clients. This will be saved as-is into a ConfigMap that is read by the Consul
