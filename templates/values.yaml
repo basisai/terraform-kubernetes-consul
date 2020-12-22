@@ -1108,7 +1108,7 @@ connectInject:
   # Used to pass arguments to the injected envoy sidecar.
   # Valid arguments to pass to envoy can be found here: https://www.envoyproxy.io/docs/envoy/latest/operations/cli
   # e.g "--log-level debug --disable-hot-restart"
-  @type: string
+  # @type: string
   envoyExtraArgs: ${envoy_extra_args}
 
   # Optional priorityClassName.
