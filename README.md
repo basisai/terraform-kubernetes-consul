@@ -111,7 +111,7 @@ You can do so by running `kubectl get configmap/coredns -n kube-system -o yaml`.
 | chart\_namespace | Namespace to install the chart into | `string` | `"default"` | no |
 | chart\_repository | Helm repository for the chart | `string` | `"https://helm.releases.hashicorp.com"` | no |
 | chart\_timeout | Timeout to wait for the Chart to be deployed. The chart waits for all Daemonset pods to be healthy before ending. Increase this for larger clusers to avoid timeout | `number` | `1800` | no |
-| chart\_version | Version of Chart to install. Set to empty to install the latest version | `string` | `"0.28.0"` | no |
+| chart\_version | Version of Chart to install. Set to empty to install the latest version | `string` | `"0.29.0"` | no |
 | client\_annotations | A YAML string for client pods | `string` | `""` | no |
 | client\_enabled | Enable running Consul client agents on every Kubernetes node | `string` | `"-"` | no |
 | client\_extra\_config | Additional configuration to include for client agents | `map` | `{}` | no |
@@ -138,9 +138,9 @@ You can do so by running `kubectl get configmap/coredns -n kube-system -o yaml`.
 | connect\_inject\_tolerations | Template string for Connect Inject Tolerations | `string` | `""` | no |
 | consul\_domain | Top level Consul domain for DNS queries | `string` | `"consul"` | no |
 | consul\_image\_name | Docker Image of Consul to run | `string` | `"consul"` | no |
-| consul\_image\_tag | Docker image tag of Consul to run | `string` | `"1.9.1"` | no |
+| consul\_image\_tag | Docker image tag of Consul to run | `string` | `"1.9.2"` | no |
 | consul\_k8s\_image | Docker image of the consul-k8s binary to run | `string` | `"hashicorp/consul-k8s"` | no |
-| consul\_k8s\_tag | Image tag of the consul-k8s binary to run | `string` | `"0.22.0"` | no |
+| consul\_k8s\_tag | Image tag of the consul-k8s binary to run | `string` | `"0.23.0"` | no |
 | consul\_template\_image | Image for Consul Template | `string` | `"hashicorp/consul-template:0.25.1-light"` | no |
 | controller\_enable | Enable Consul Configuration Entries CRD Controller | `bool` | `false` | no |
 | controller\_log\_level | CRD Controller Log level. | `string` | `"info"` | no |
