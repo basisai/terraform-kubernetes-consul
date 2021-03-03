@@ -219,14 +219,14 @@ global:
     # `<helm-release-name>-consul-federation`. Requires consul-k8s 0.15.0+.
     createFederationSecret: false
 
-  # The lifecycle sidecar ensures the Consul services
+  # The consul sidecar ensures the Consul services
   # are always registered with their local Consul clients and is used by the
   # ingress/terminating/mesh gateways as well as with every Connect-injected service.
   # @recurse: false
   # @type: map
-  lifecycleSidecarContainer:
+  consulSidecarContainer:
     resources:
-      ${indent(6, lifecycle_sidecar_container_resources)}
+      ${indent(6, consul_sidecar_container_resources)}
       # requests:
       #   memory: "25Mi"
       #   cpu: "20m"
@@ -755,6 +755,19 @@ client:
   # @type: string
   annotations: ${client_annotations}
 
+  # Extra labels to attach to the client pods. This should be a regular YAML map.
+  #
+  # Example:
+  #
+  # ```yaml
+  # extraLabels:
+  #   labelKey: label-value
+  #   anotherLabelKey: another-label-value
+  # ```
+  #
+  # @type: map
+  extraLabels: ${client_labels}
+
   # A list of extra environment variables to set within the stateful set.
   # These could be used to include proxy settings required for cloud auto-join
   # feature, in case kubernetes cluster is behind egress http proxies. Additionally,
@@ -1163,6 +1176,17 @@ connectInject:
     # reconcile is done after the initial reconcile at startup is completed.
     reconcilePeriod: ${inject_health_check_reconcile_period}
 
+  # Cleanup controller cleans up Consul service instances that remain registered
+  # despite their pods no longer running. This could happen if the pod's `preStop`
+  # hook failed to execute for some reason.
+  cleanupController:
+    # How often to do a full reconcile where the controller looks at all pods
+    # and service instances and ensure the state is correct.
+    # The controller reacts to each delete event immediately but if it misses
+    # an event due to being down or a network issue, the reconcile loop will
+    # handle cleaning up any missed deleted pods.
+    reconcilePeriod: "${cleanup_controller_reconcile_period}"
+
   # Used to pass arguments to the injected envoy sidecar.
   # Valid arguments to pass to envoy can be found here: https://www.envoyproxy.io/docs/envoy/latest/operations/cli
   # e.g "--log-level debug --disable-hot-restart"
@@ -1341,29 +1365,6 @@ connectInject:
     # @type: string
     secretKey: null
 
-  # Requires Consul >= v1.5 and consul-k8s >= v0.8.1.
-  centralConfig:
-    # Controls whether central config is enabled on all servers and clients.
-    # See https://www.consul.io/docs/agent/options.html#enable_central_service_config.
-    # If changing this after installation, servers and clients must be restarted
-    # for the change to take effect.
-    enabled: true
-
-    # Allows you to specify a convenience default protocol if
-    # most of your services are of the same protocol type. The individual annotation
-    # on any given pod will override this value.
-    # Valid values are "http", "http2", "grpc" and "tcp".
-    defaultProtocol: ${connect_inject_default_protocol}
-
-    # Raw json string that will be written as the value of
-    # the "config" key of the global proxy-defaults config entry.
-    # See: https://www.consul.io/docs/agent/config-entries/proxy-defaults.html
-    # NOTE: Changes to this value after the chart is first installed have _no_
-    # effect. In order to change the proxy-defaults config after installation,
-    # you must use the Consul API.
-    proxyDefaults: |
-      {}
-
   sidecarProxy:
     # Set default resources for sidecar proxy. If null, that resource won't
     # be set.
@@ -1438,6 +1439,29 @@ controller:
   # Optional priorityClassName.
   priorityClassName: "${controller_priority_class}"
 
+  # Refers to a Kubernetes secret that you have created that contains
+  # an ACL token for your Consul cluster which grants the controller process the correct
+  # permissions. This is only needed if you are managing ACLs yourself (i.e. not using
+  # `global.acls.manageSystemACLs`).
+  #
+  # If running Consul OSS, requires permissions:
+  # ```hcl
+  # operator = "write"
+  # service_prefix "" {
+  #   policy = "write"
+  #   intentions = "write"
+  # }
+  # ```
+  # If running Consul Enterprise, talk to your account manager for assistance.
+  aclToken:
+    # The name of the Kubernetes secret.
+    # @type: string
+    secretName: null
+    # The key of the Kubernetes secret.
+    # @type: string
+    secretKey: null
+
+
 # Mesh Gateways enable Consul Connect to work across Consul datacenters.
 meshGateway:
   # If mesh gateways are enabled, a Deployment will be created that runs
@@ -1446,16 +1470,6 @@ meshGateway:
   # Requirements: consul >= 1.6.0 and consul-k8s >= 0.9.0 if using
   # global.acls.manageSystemACLs.
   enabled: false
-
-  # Globally configure which mode the gateway should run in.
-  # Can be set to either "remote", "local", "none" or empty string or null.
-  # See https://consul.io/docs/connect/mesh_gateway.html#modes-of-operation for
-  # a description of each mode.
-  # If set to anything other than "" or null, connectInject.centralConfig.enabled
-  # should be set to true so that the global config will actually be used.
-  # If set to the empty string, no global default will be set and the gateway mode
-  # will need to be set individually for each service.
-  globalMode: local
 
   # Number of replicas for the Deployment.
   replicas: 2
