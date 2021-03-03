@@ -50,7 +50,7 @@ variable "consul_image_name" {
 
 variable "consul_image_tag" {
   description = "Docker image tag of Consul to run"
-  default     = "1.9.2"
+  default     = "1.9.3"
 }
 
 variable "consul_k8s_image" {
@@ -60,7 +60,7 @@ variable "consul_k8s_image" {
 
 variable "consul_k8s_tag" {
   description = "Image tag of the consul-k8s binary to run"
-  default     = "0.23.0"
+  default     = "0.24.0"
 }
 
 variable "image_envoy" {
@@ -221,6 +221,11 @@ variable "client_tolerations" {
 variable "client_annotations" {
   description = "A YAML string for client pods"
   default     = ""
+}
+
+variable "client_labels" {
+  description = "Additional labels for client pods"
+  default     = {}
 }
 
 variable "client_priority_class" {
@@ -431,11 +436,6 @@ variable "connect_inject_priority_class" {
   default     = ""
 }
 
-variable "connect_inject_default_protocol" {
-  description = "specify a convenience default protocol if most of your services are of the same protocol type. The individual annotation on any given pod will override this value.  Valid values are 'http', 'http2', 'grpc' and 'tcp'."
-  default     = null
-}
-
 variable "connect_inject_log_level" {
   description = "Log verbosity level. One of debug, info, warn, or error."
   default     = "info"
@@ -469,10 +469,10 @@ variable "connect_inject_init_resources" {
   }
 }
 
-variable "lifecycle_sidecar_container_resources" {
+variable "consul_sidecar_container_resources" {
   description = <<-EOF
-    Resource settings for lifecycle-sidecar containers.
-    The lifecycle sidecar ensures the Consul services are always registered with
+    Resource settings for consul -sidecar containers.
+    The consul  sidecar ensures the Consul services are always registered with
     their local consul clients and is used by the ingress/terminating/mesh gateways
     as well as with every connect-injected service.
     EOF
@@ -501,6 +501,11 @@ variable "inject_health_check" {
 variable "inject_health_check_reconcile_period" {
   description = "defines how often a full state reconcile is done after the initial reconcile at startup is completed."
   default     = "1m"
+}
+
+variable "cleanup_controller_reconcile_period" {
+  description = "How often to do a full reconcile where the controller looks at all pods and service instances and ensure the state is correct. The controller reacts to each delete event immediately but if it misses an event due to being down or a network issue, the reconcile loop will handle cleaning up any missed deleted pods."
+  default     = "5m"
 }
 
 ###########################

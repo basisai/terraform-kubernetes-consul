@@ -112,11 +112,13 @@ You can do so by running `kubectl get configmap/coredns -n kube-system -o yaml`.
 | chart\_repository | Helm repository for the chart | `string` | `"https://helm.releases.hashicorp.com"` | no |
 | chart\_timeout | Timeout to wait for the Chart to be deployed. The chart waits for all Daemonset pods to be healthy before ending. Increase this for larger clusers to avoid timeout | `number` | `1800` | no |
 | chart\_version | Version of Chart to install. Set to empty to install the latest version | `string` | `"0.29.0"` | no |
+| cleanup\_controller\_reconcile\_period | How often to do a full reconcile where the controller looks at all pods and service instances and ensure the state is correct. The controller reacts to each delete event immediately but if it misses an event due to being down or a network issue, the reconcile loop will handle cleaning up any missed deleted pods. | `string` | `"5m"` | no |
 | client\_annotations | A YAML string for client pods | `string` | `""` | no |
 | client\_enabled | Enable running Consul client agents on every Kubernetes node | `string` | `"-"` | no |
 | client\_extra\_config | Additional configuration to include for client agents | `map` | `{}` | no |
 | client\_extra\_volumes | List of map of extra volumes specification. See https://www.consul.io/docs/platform/k8s/helm.html#v-client-extravolumes for the keys | `list` | `[]` | no |
 | client\_grpc | Enable GRPC port for clients. Required for Connect Inject | `bool` | `true` | no |
+| client\_labels | Additional labels for client pods | `map` | `{}` | no |
 | client\_priority\_class | Priority class for clients | `string` | `""` | no |
 | client\_resources | Resources for clients | `map` | <pre>{<br>  "limits": {<br>    "cpu": "100m",<br>    "memory": "100Mi"<br>  },<br>  "requests": {<br>    "cpu": "100m",<br>    "memory": "100Mi"<br>  }<br>}</pre> | no |
 | client\_security\_context | Pod security context for client pods | `map` | <pre>{<br>  "fsGroup": 1000,<br>  "runAsGroup": 1000,<br>  "runAsNonRoot": true,<br>  "runAsUser": 100<br>}</pre> | no |
@@ -127,7 +129,6 @@ You can do so by running `kubectl get configmap/coredns -n kube-system -o yaml`.
 | connect\_inject\_affinity | Template string for Connect Inject Affinity | `string` | `""` | no |
 | connect\_inject\_allowed\_namespaces | List of allowed namespaces to inject. | `list` | <pre>[<br>  "*"<br>]</pre> | no |
 | connect\_inject\_by\_default | If true, the injector will inject the Connect sidecar into all pods by default. Otherwise, pods must specify the injection annotation to opt-in to Connect injection. If this is true, pods can use the same annotation to explicitly opt-out of injection. | `bool` | `false` | no |
-| connect\_inject\_default\_protocol | specify a convenience default protocol if most of your services are of the same protocol type. The individual annotation on any given pod will override this value.  Valid values are 'http', 'http2', 'grpc' and 'tcp'. | `any` | `null` | no |
 | connect\_inject\_denied\_namespaces | List of denied namespaces to inject. | `list` | `[]` | no |
 | connect\_inject\_init\_resources | Resource settings for the Connect injected init container. | `map` | <pre>{<br>  "limits": {<br>    "cpu": "50m",<br>    "memory": "50Mi"<br>  },<br>  "requests": {<br>    "cpu": "50m",<br>    "memory": "50Mi"<br>  }<br>}</pre> | no |
 | connect\_inject\_log\_level | Log verbosity level. One of debug, info, warn, or error. | `string` | `"info"` | no |
@@ -138,9 +139,10 @@ You can do so by running `kubectl get configmap/coredns -n kube-system -o yaml`.
 | connect\_inject\_tolerations | Template string for Connect Inject Tolerations | `string` | `""` | no |
 | consul\_domain | Top level Consul domain for DNS queries | `string` | `"consul"` | no |
 | consul\_image\_name | Docker Image of Consul to run | `string` | `"consul"` | no |
-| consul\_image\_tag | Docker image tag of Consul to run | `string` | `"1.9.2"` | no |
+| consul\_image\_tag | Docker image tag of Consul to run | `string` | `"1.9.3"` | no |
 | consul\_k8s\_image | Docker image of the consul-k8s binary to run | `string` | `"hashicorp/consul-k8s"` | no |
-| consul\_k8s\_tag | Image tag of the consul-k8s binary to run | `string` | `"0.23.0"` | no |
+| consul\_k8s\_tag | Image tag of the consul-k8s binary to run | `string` | `"0.24.0"` | no |
+| consul\_sidecar\_container\_resources | Resource settings for consul -sidecar containers.<br>The consul  sidecar ensures the Consul services are always registered with<br>their local consul clients and is used by the ingress/terminating/mesh gateways<br>as well as with every connect-injected service. | `map` | <pre>{<br>  "limits": {<br>    "cpu": "20m",<br>    "memory": "50Mi"<br>  },<br>  "requests": {<br>    "cpu": "20m",<br>    "memory": "50Mi"<br>  }<br>}</pre> | no |
 | consul\_template\_image | Image for Consul Template | `string` | `"hashicorp/consul-template:0.25.1-light"` | no |
 | controller\_enable | Enable Consul Configuration Entries CRD Controller | `bool` | `false` | no |
 | controller\_log\_level | CRD Controller Log level. | `string` | `"info"` | no |
@@ -206,7 +208,6 @@ You can do so by running `kubectl get configmap/coredns -n kube-system -o yaml`.
 | image\_envoy | Image and tag for Envoy Docker image to use for sidecar proxies, mesh, terminating and ingress gateways | `string` | `"envoyproxy/envoy-alpine:v1.16.0"` | no |
 | inject\_health\_check | Enables the Consul Health Check controller which syncs the readiness status of connect-injected pods with Consul. | `bool` | `true` | no |
 | inject\_health\_check\_reconcile\_period | defines how often a full state reconcile is done after the initial reconcile at startup is completed. | `string` | `"1m"` | no |
-| lifecycle\_sidecar\_container\_resources | Resource settings for lifecycle-sidecar containers.<br>The lifecycle sidecar ensures the Consul services are always registered with<br>their local consul clients and is used by the ingress/terminating/mesh gateways<br>as well as with every connect-injected service. | `map` | <pre>{<br>  "limits": {<br>    "cpu": "20m",<br>    "memory": "50Mi"<br>  },<br>  "requests": {<br>    "cpu": "20m",<br>    "memory": "50Mi"<br>  }<br>}</pre> | no |
 | max\_history | Max History for Helm | `number` | `20` | no |
 | name | Sets the prefix used for all resources in the helm chart. If not set, the prefix will be "<helm release name>-consul". | `any` | `null` | no |
 | pod\_security\_policy\_enable | Create PodSecurityPolicy Resources | `bool` | `true` | no |

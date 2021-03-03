@@ -49,6 +49,7 @@ locals {
     client_tolerations    = jsonencode(var.client_tolerations)
     client_priority_class = var.client_priority_class
     client_annotations    = jsonencode(var.client_annotations)
+    client_labels         = jsonencode(var.client_labels)
 
     server_security_context = jsonencode(var.server_security_context)
     client_security_context = jsonencode(var.client_security_context)
@@ -95,16 +96,16 @@ locals {
     connect_inject_namespace_selector = var.connect_inject_namespace_selector != null ? var.connect_inject_namespace_selector : "null"
     connect_inject_allowed_namespaces = jsonencode(var.connect_inject_allowed_namespaces)
     connect_inject_denied_namespaces  = jsonencode(var.connect_inject_denied_namespaces)
-    connect_inject_default_protocol   = var.connect_inject_default_protocol != null ? var.connect_inject_default_protocol : "null"
     connect_inject_log_level          = var.connect_inject_log_level
 
     connect_inject_sidecar_proxy_resources = yamlencode(var.connect_inject_sidecar_proxy_resources)
     connect_inject_init_resources          = yamlencode(var.connect_inject_init_resources)
-    lifecycle_sidecar_container_resources  = yamlencode(var.lifecycle_sidecar_container_resources)
+    consul_sidecar_container_resources     = yamlencode(var.consul_sidecar_container_resources)
     envoy_extra_args                       = var.envoy_extra_args != null ? jsonencode(var.envoy_extra_args) : "null"
 
     inject_health_check                  = var.inject_health_check
     inject_health_check_reconcile_period = var.inject_health_check_reconcile_period
+    cleanup_controller_reconcile_period  = var.cleanup_controller_reconcile_period
 
     controller_enable           = var.controller_enable
     controller_log_level        = var.controller_log_level
