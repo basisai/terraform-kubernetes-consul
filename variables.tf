@@ -340,29 +340,28 @@ variable "configure_core_dns" {
 variable "core_dns_template" {
   description = "Template for CoreDNS `CoreFile` configuration. Use Terraform string interpolation format with the variable `consul_dns_address` for Consul DNS endpoint. See Default for an example"
 
-  default = <<EOF
-.:53 {
-  errors
-  health
-  kubernetes cluster.local in-addr.arpa ip6.arpa {
-    pods insecure
-    upstream
-    fallthrough in-addr.arpa ip6.arpa
-  }
-  prometheus :9153
-  forward . /etc/resolv.conf
-  cache 30
-  loop
-  reload
-  loadbalance
-}
+  default = <<-EOF
+    .:53 {
+      errors
+      health
+      kubernetes cluster.local in-addr.arpa ip6.arpa {
+        pods insecure
+        fallthrough in-addr.arpa ip6.arpa
+      }
+      prometheus :9153
+      forward . /etc/resolv.conf
+      cache 30
+      loop
+      reload
+      loadbalance
+    }
 
-consul {
-  errors
-  cache 30
-  forward . $${consul_dns_address}
-}
-EOF
+    consul {
+      errors
+      cache 30
+      forward . $${consul_dns_address}
+    }
+    EOF
 }
 
 variable "core_dns_labels" {
