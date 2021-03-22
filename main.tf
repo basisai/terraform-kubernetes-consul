@@ -123,6 +123,7 @@ locals {
     metrics_enabled              = var.metrics_enabled
     enable_agent_metrics         = var.enable_agent_metrics
     agent_metrics_retention_time = var.agent_metrics_retention_time
+    enable_gateway_metrics       = var.enable_gateway_metrics
 
     ui_metrics_enabled  = var.ui_metrics_enabled
     ui_metrics_provider = var.ui_metrics_provider
@@ -131,6 +132,7 @@ locals {
     connect_inject_metrics_default_enabled        = var.connect_inject_metrics_default_enabled
     connect_inject_default_enable_merging         = var.connect_inject_default_enable_merging
     connect_inject_default_merged_metrics_port    = var.connect_inject_default_merged_metrics_port
+    connect_inject_default_prometheus_scrape_port = var.connect_inject_default_prometheus_scrape_port
     connect_inject_default_prometheus_scrape_path = var.connect_inject_default_prometheus_scrape_path
   }
 }
