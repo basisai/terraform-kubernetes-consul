@@ -219,6 +219,32 @@ global:
     # `<helm-release-name>-consul-federation`. Requires consul-k8s 0.15.0+.
     createFederationSecret: false
 
+  # Configures metrics for Consul service mesh
+  metrics:
+    # Configures the Helm chart’s components
+    # to expose Prometheus metrics for the Consul service mesh. By default
+    # this includes gateway metrics and sidecar metrics.
+    # @type: boolean
+    enabled: ${metrics_enabled}
+
+    # Configures consul agent metrics. Only applicable if
+    # `global.metrics.enabled` is true.
+    # @type: boolean
+    enableAgentMetrics: ${enable_agent_metrics}
+
+    # Configures the retention time for metrics in Consul clients and
+    # servers. This must be greater than 0 for Consul clients and servers
+    # to expose any metrics at all.
+    # Only applicable if `global.metrics.enabled` is true.
+    # @type: string
+    agentMetricsRetentionTime: ${agent_metrics_retention_time}
+
+    # If true, mesh, terminating, and ingress gateways will expose their
+    # Envoy metrics on port `20200` at the `/metrics` path and all gateway pods
+    # will have Prometheus scrape annotations. Only applicable if `global.metrics.enabled` is true.
+    # @type: boolean
+    enableGatewayMetrics: ${enable_gateway_metrics}
+
   # The consul sidecar ensures the Consul services
   # are always registered with their local Consul clients and is used by the
   # ingress/terminating/mesh gateways as well as with every Connect-injected service.
@@ -736,7 +762,7 @@ client:
   #         - key: node-role.kubernetes.io/master
   #           operator: DoesNotExist
   # ```
-  affinity: {}
+  affinity: ${client_affinity}
 
   # This value references an existing
   # Kubernetes `priorityClassName` (https://kubernetes.io/docs/concepts/configuration/pod-priority-preemption/#pod-priority)
@@ -966,6 +992,24 @@ ui:
     # @type: string
     annotations: null
 
+    # Configurations for displaying metrics in the UI.
+  metrics:
+    # Enable displaying metrics in the UI. The default value of "-"
+    # will inherit from `global.metrics.enabled` value.
+    # @type: boolean
+    # @default: global.metrics.enabled
+    enabled: "${ui_metrics_enabled}"
+    # Provider for metrics. See
+    # https://www.consul.io/docs/agent/options#ui_config_metrics_provider
+    # This value is only used if `ui.enabled` is set to true.
+    # @type: string
+    provider: ${ui_metrics_provider}
+
+    # baseURL is the URL of the prometheus server, usually the service URL.
+    # This value is only used if `ui.enabled` is set to true.
+    # @type: string
+    baseURL: ${ui_metrics_base_url}
+
 # Configure the catalog sync process to sync K8S with Consul
 # services. This can run bidirectional (default) or unidirectionally (Consul
 # to K8S or K8S to Consul only).
@@ -1175,6 +1219,44 @@ connectInject:
     # If `healthChecks.enabled` is set to `true`, `reconcilePeriod` defines how often a full state
     # reconcile is done after the initial reconcile at startup is completed.
     reconcilePeriod: ${inject_health_check_reconcile_period}
+
+  # Configures metrics for Consul Connect services. All values are overridable
+  # via annotations on a per-pod basis.
+  metrics:
+    # If true, the connect-injector will automatically
+    # add prometheus annotations to connect-injected pods. It will also
+    # add a listener on the Envoy sidecar to expose metrics. The exposed
+    # metrics will depend on whether metrics merging is enabled:
+    #   - If metrics merging is enabled:
+    #     the Consul sidecar will run a merged metrics server
+    #     combining Envoy sidecar and Connect service metrics,
+    #     i.e. if your service exposes its own Prometheus metrics.
+    #   - If metrics merging is disabled:
+    #     the listener will just expose Envoy sidecar metrics.
+    # This will inherit from `global.metrics.enabled`.
+    defaultEnabled: "${connect_inject_metrics_default_enabled}"
+    # Configures the Consul sidecar to run a merged metrics server
+    # to combine and serve both Envoy and Connect service metrics.
+    # This feature is available only in Consul v1.10-alpha or greater.
+    defaultEnableMerging: ${connect_inject_default_enable_merging}
+    # Configures the port at which the Consul sidecar will listen on to return
+    # combined metrics. This port only needs to be changed if it conflicts with
+    # the application's ports.
+    defaultMergedMetricsPort: ${connect_inject_default_merged_metrics_port}
+    # Configures the port Prometheus will scrape metrics from, by configuring
+    # the Pod annotation `prometheus.io/port` and the corresponding listener in
+    # the Envoy sidecar.
+    # NOTE: This is *not* the port that your application exposes metrics on.
+    # That can be configured with the
+    # `consul.hashicorp.com/service-metrics-port` annotation.
+    defaultPrometheusScrapePort: ${connect_inject_default_prometheus_scrape_port}
+    # Configures the path Prometheus will scrape metrics from, by configuring the pod
+    # annotation `prometheus.io/path` and the corresponding handler in the Envoy
+    # sidecar.
+    # NOTE: This is *not* the path that your application exposes metrics on.
+    # That can be configured with the
+    # `consul.hashicorp.com/service-metrics-path` annotation.
+    defaultPrometheusScrapePath: ${connect_inject_default_prometheus_scrape_path}
 
   # Cleanup controller cleans up Consul service instances that remain registered
   # despite their pods no longer running. This could happen if the pod's `preStop`
@@ -1755,6 +1837,17 @@ ingressGateways:
   # @type: array<map>
   gateways:
     - name: ingress-gateway
+
+# Configures a demo Prometheus installation.
+prometheus:
+  # When true, the Helm chart will install a demo Prometheus server instance
+  # alongside Consul.
+  enabled: false
+# Configures a demo Grafana installation.
+grafana:
+  # When true, the Helm chart will install a demo Grafana instance
+  # alongside Consul.
+  enabled: false
 
 # Configuration options for terminating gateways. Default values for all
 # terminating gateways are defined in `terminatingGateways.defaults`. Any of

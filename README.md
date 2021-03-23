@@ -107,12 +107,14 @@ You can do so by running `kubectl get configmap/coredns -n kube-system -o yaml`.
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
+| agent\_metrics\_retention\_time | Configures the retention time for metrics in Consul clients and servers. This must be greater than 0 for Consul clients and servers to expose any metrics at all. | `string` | `"1m"` | no |
 | chart\_name | Helm chart name to provision | `string` | `"consul"` | no |
 | chart\_namespace | Namespace to install the chart into | `string` | `"default"` | no |
 | chart\_repository | Helm repository for the chart | `string` | `"https://helm.releases.hashicorp.com"` | no |
 | chart\_timeout | Timeout to wait for the Chart to be deployed. The chart waits for all Daemonset pods to be healthy before ending. Increase this for larger clusers to avoid timeout | `number` | `1800` | no |
-| chart\_version | Version of Chart to install. Set to empty to install the latest version | `string` | `"0.30.0"` | no |
+| chart\_version | Version of Chart to install. Set to empty to install the latest version | `string` | `"0.31.1"` | no |
 | cleanup\_controller\_reconcile\_period | How often to do a full reconcile where the controller looks at all pods and service instances and ensure the state is correct. The controller reacts to each delete event immediately but if it misses an event due to being down or a network issue, the reconcile loop will handle cleaning up any missed deleted pods. | `string` | `"5m"` | no |
+| client\_affinity | affinity Settings for Client pods, formatted as a multi-line YAML string. | `any` | `null` | no |
 | client\_annotations | A YAML string for client pods | `string` | `""` | no |
 | client\_enabled | Enable running Consul client agents on every Kubernetes node | `string` | `"-"` | no |
 | client\_extra\_config | Additional configuration to include for client agents | `map` | `{}` | no |
@@ -129,9 +131,14 @@ You can do so by running `kubectl get configmap/coredns -n kube-system -o yaml`.
 | connect\_inject\_affinity | Template string for Connect Inject Affinity | `string` | `""` | no |
 | connect\_inject\_allowed\_namespaces | List of allowed namespaces to inject. | `list` | <pre>[<br>  "*"<br>]</pre> | no |
 | connect\_inject\_by\_default | If true, the injector will inject the Connect sidecar into all pods by default. Otherwise, pods must specify the injection annotation to opt-in to Connect injection. If this is true, pods can use the same annotation to explicitly opt-out of injection. | `bool` | `false` | no |
+| connect\_inject\_default\_enable\_merging | Configures the Consul sidecar to run a merged metrics server to combine and serve both Envoy and Connect service metrics. This feature is available only in Consul v1.10-alpha or greater. | `bool` | `false` | no |
+| connect\_inject\_default\_merged\_metrics\_port | Configures the port at which the Consul sidecar will listen on to return combined metrics. This port only needs to be changed if it conflicts with the application's ports. | `number` | `20100` | no |
+| connect\_inject\_default\_prometheus\_scrape\_path | Configures the path Prometheus will scrape metrics from, by configuring the pod<br>annotation `prometheus.io/path` and the corresponding handler in the Envoy<br>sidecar.<br>NOTE: This is *not* the path that your application exposes metrics on.<br>That can be configured with the<br>`consul.hashicorp.com/service-metrics-path` annotation. | `string` | `"/metrics"` | no |
+| connect\_inject\_default\_prometheus\_scrape\_port | Configures the port Prometheus will scrape metrics from, by configuring<br>the Pod annotation `prometheus.io/port` and the corresponding listener in<br>the Envoy sidecar.<br>NOTE: This is *not* the port that your application exposes metrics on.<br>That can be configured with the<br>`consul.hashicorp.com/service-metrics-port` annotation. | `number` | `20200` | no |
 | connect\_inject\_denied\_namespaces | List of denied namespaces to inject. | `list` | `[]` | no |
 | connect\_inject\_init\_resources | Resource settings for the Connect injected init container. | `map` | <pre>{<br>  "limits": {<br>    "cpu": "50m",<br>    "memory": "50Mi"<br>  },<br>  "requests": {<br>    "cpu": "50m",<br>    "memory": "50Mi"<br>  }<br>}</pre> | no |
 | connect\_inject\_log\_level | Log verbosity level. One of debug, info, warn, or error. | `string` | `"info"` | no |
+| connect\_inject\_metrics\_default\_enabled | If true, the connect-injector will automatically<br>add prometheus annotations to connect-injected pods. It will also<br>add a listener on the Envoy sidecar to expose metrics. The exposed<br>metrics will depend on whether metrics merging is enabled:<br>  - If metrics merging is enabled:<br>    the Consul sidecar will run a merged metrics server<br>    combining Envoy sidecar and Connect service metrics,<br>    i.e. if your service exposes its own Prometheus metrics.<br>  - If metrics merging is disabled:<br>    the listener will just expose Envoy sidecar metrics.<br>Defaults to var.metrics\_enabled | `string` | `"-"` | no |
 | connect\_inject\_namespace\_selector | A YAML string selector for restricting injection to only matching namespaces. By default all namespaces except the system namespace will have injection enabled. | `any` | `null` | no |
 | connect\_inject\_priority\_class | Pod Priority Class for Connect Inject | `string` | `""` | no |
 | connect\_inject\_resources | Resources for connect inject pod | `map` | <pre>{<br>  "limits": {<br>    "cpu": "50m",<br>    "memory": "50Mi"<br>  },<br>  "requests": {<br>    "cpu": "50m",<br>    "memory": "50Mi"<br>  }<br>}</pre> | no |
@@ -139,9 +146,9 @@ You can do so by running `kubectl get configmap/coredns -n kube-system -o yaml`.
 | connect\_inject\_tolerations | Template string for Connect Inject Tolerations | `string` | `""` | no |
 | consul\_domain | Top level Consul domain for DNS queries | `string` | `"consul"` | no |
 | consul\_image\_name | Docker Image of Consul to run | `string` | `"consul"` | no |
-| consul\_image\_tag | Docker image tag of Consul to run | `string` | `"1.9.3"` | no |
+| consul\_image\_tag | Docker image tag of Consul to run | `string` | `"1.9.4"` | no |
 | consul\_k8s\_image | Docker image of the consul-k8s binary to run | `string` | `"hashicorp/consul-k8s"` | no |
-| consul\_k8s\_tag | Image tag of the consul-k8s binary to run | `string` | `"0.24.0"` | no |
+| consul\_k8s\_tag | Image tag of the consul-k8s binary to run | `string` | `"0.25.0"` | no |
 | consul\_sidecar\_container\_resources | Resource settings for consul -sidecar containers.<br>The consul  sidecar ensures the Consul services are always registered with<br>their local consul clients and is used by the ingress/terminating/mesh gateways<br>as well as with every connect-injected service. | `map` | <pre>{<br>  "limits": {<br>    "cpu": "20m",<br>    "memory": "50Mi"<br>  },<br>  "requests": {<br>    "cpu": "20m",<br>    "memory": "50Mi"<br>  }<br>}</pre> | no |
 | consul\_template\_image | Image for Consul Template | `string` | `"hashicorp/consul-template:0.25.1-light"` | no |
 | controller\_enable | Enable Consul Configuration Entries CRD Controller | `bool` | `false` | no |
@@ -153,9 +160,11 @@ You can do so by running `kubectl get configmap/coredns -n kube-system -o yaml`.
 | controller\_resources | CRD Controller resources | `map` | <pre>{<br>  "limits": {<br>    "cpu": "100m",<br>    "memory": "50Mi"<br>  },<br>  "requests": {<br>    "cpu": "100m",<br>    "memory": "50Mi"<br>  }<br>}</pre> | no |
 | core\_dns\_labels | Labels for CoreDNS ConfigMap | `map` | <pre>{<br>  "addonmanager.kubernetes.io/mode": "EnsureExists",<br>  "eks.amazonaws.com/component": "coredns",<br>  "k8s-app": "kube-dns"<br>}</pre> | no |
 | core\_dns\_template | Template for CoreDNS `CoreFile` configuration. Use Terraform string interpolation format with the variable `consul_dns_address` for Consul DNS endpoint. See Default for an example | `string` | `".:53 {\n  errors\n  health\n  kubernetes cluster.local in-addr.arpa ip6.arpa {\n    pods insecure\n    fallthrough in-addr.arpa ip6.arpa\n  }\n  prometheus :9153\n  forward . /etc/resolv.conf\n  cache 30\n  loop\n  reload\n  loadbalance\n}\n\nconsul {\n  errors\n  cache 30\n  forward . ${consul_dns_address}\n}\n"` | no |
+| enable\_agent\_metrics | Configures consul agent metrics. | `bool` | `false` | no |
 | enable\_connect\_inject | Enable Connect Injector process | `bool` | `false` | no |
 | enable\_esm | Enable Consul ESM deployment | `bool` | `false` | no |
 | enable\_exporter | Enable Consul Exporter deployment | `bool` | `false` | no |
+| enable\_gateway\_metrics | If true, mesh, terminating, and ingress gateways will expose their Envoy metrics on port `20200` at the `/metrics` path and all gateway pods will have Prometheus scrape annotations. | `bool` | `true` | no |
 | enable\_sync\_catalog | Enable Service catalog sync: https://www.consul.io/docs/platform/k8s/service-sync.html | `bool` | `true` | no |
 | enable\_ui | Enable Consul UI | `bool` | `false` | no |
 | envoy\_extra\_args | Pass arguments to the injected envoy sidecar. Valid arguments to pass to envoy can be found here: https://www.envoyproxy.io/docs/envoy/latest/operations/cli | `any` | `null` | no |
@@ -209,6 +218,7 @@ You can do so by running `kubectl get configmap/coredns -n kube-system -o yaml`.
 | inject\_health\_check | Enables the Consul Health Check controller which syncs the readiness status of connect-injected pods with Consul. | `bool` | `true` | no |
 | inject\_health\_check\_reconcile\_period | defines how often a full state reconcile is done after the initial reconcile at startup is completed. | `string` | `"1m"` | no |
 | max\_history | Max History for Helm | `number` | `20` | no |
+| metrics\_enabled | Configures the Helm chart’s components to expose Prometheus metrics for the Consul service mesh. | `bool` | `false` | no |
 | name | Sets the prefix used for all resources in the helm chart. If not set, the prefix will be "<helm release name>-consul". | `any` | `null` | no |
 | pod\_security\_policy\_enable | Create PodSecurityPolicy Resources | `bool` | `true` | no |
 | release\_name | Helm release name for Consul | `string` | `"consul"` | no |
@@ -251,6 +261,9 @@ You can do so by running `kubectl get configmap/coredns -n kube-system -o yaml`.
 | tls\_verify | If true, 'verify\_outgoing', 'verify\_server\_hostname', and<br>'verify\_incoming\_rpc' will be set to true for Consul servers and clients.<br>Set this to false to incrementally roll out TLS on an existing Consul cluster.<br>Note: remember to switch it back to true once the rollout is complete.<br>Please see this guide for more details:<br>https://learn.hashicorp.com/consul/security-networking/certificates | `bool` | `true` | no |
 | ui\_additional\_spec | Additional Spec for the UI service | `string` | `""` | no |
 | ui\_annotations | UI service annotations | `string` | `""` | no |
+| ui\_metrics\_base\_url | URL of the prometheus server, usually the service URL. | `string` | `"http://prometheus-server"` | no |
+| ui\_metrics\_enabled | Enable displaying metrics in UI. Defaults to value of var.metrics\_enabled | `string` | `"-"` | no |
+| ui\_metrics\_provider | Provider for metrics. See https://www.consul.io/docs/agent/options#ui_config_metrics_provider | `string` | `"prometheus"` | no |
 | ui\_service\_type | Type of service for Consul UI | `string` | `"ClusterIP"` | no |
 
 ## Outputs

@@ -15,7 +15,7 @@ variable "chart_repository" {
 
 variable "chart_version" {
   description = "Version of Chart to install. Set to empty to install the latest version"
-  default     = "0.30.0"
+  default     = "0.31.1"
 }
 
 variable "chart_namespace" {
@@ -50,7 +50,7 @@ variable "consul_image_name" {
 
 variable "consul_image_tag" {
   description = "Docker image tag of Consul to run"
-  default     = "1.9.3"
+  default     = "1.9.4"
 }
 
 variable "consul_k8s_image" {
@@ -60,7 +60,7 @@ variable "consul_k8s_image" {
 
 variable "consul_k8s_tag" {
   description = "Image tag of the consul-k8s binary to run"
-  default     = "0.24.0"
+  default     = "0.25.0"
 }
 
 variable "image_envoy" {
@@ -156,6 +156,11 @@ EOF
 variable "server_tolerations" {
   description = "A YAML string that can be templated via helm specifying the tolerations for server pods"
   default     = ""
+}
+
+variable "client_affinity" {
+  description = "affinity Settings for Client pods, formatted as a multi-line YAML string."
+  default     = null
 }
 
 variable "server_priority_class" {
@@ -991,4 +996,94 @@ variable "exporter_init_containers" {
 variable "exporter_extra_containers" {
   description = "Extra extra Containers"
   default     = []
+}
+
+###########################
+# Consul Connect Metrics
+###########################
+variable "metrics_enabled" {
+  description = "Configures the Helm chart’s components to expose Prometheus metrics for the Consul service mesh."
+  default     = false
+}
+
+variable "enable_agent_metrics" {
+  description = "Configures consul agent metrics."
+  default     = false
+}
+
+variable "agent_metrics_retention_time" {
+  description = "Configures the retention time for metrics in Consul clients and servers. This must be greater than 0 for Consul clients and servers to expose any metrics at all."
+  default     = "1m"
+}
+
+variable "enable_gateway_metrics" {
+  description = "If true, mesh, terminating, and ingress gateways will expose their Envoy metrics on port `20200` at the `/metrics` path and all gateway pods will have Prometheus scrape annotations."
+  default     = true
+}
+
+variable "ui_metrics_enabled" {
+  description = "Enable displaying metrics in UI. Defaults to value of var.metrics_enabled"
+  default     = "-"
+}
+
+variable "ui_metrics_provider" {
+  description = "Provider for metrics. See https://www.consul.io/docs/agent/options#ui_config_metrics_provider"
+  default     = "prometheus"
+}
+
+variable "ui_metrics_base_url" {
+  description = "URL of the prometheus server, usually the service URL."
+  default     = "http://prometheus-server"
+}
+
+variable "connect_inject_metrics_default_enabled" {
+  description = <<-EOF
+    If true, the connect-injector will automatically
+    add prometheus annotations to connect-injected pods. It will also
+    add a listener on the Envoy sidecar to expose metrics. The exposed
+    metrics will depend on whether metrics merging is enabled:
+      - If metrics merging is enabled:
+        the Consul sidecar will run a merged metrics server
+        combining Envoy sidecar and Connect service metrics,
+        i.e. if your service exposes its own Prometheus metrics.
+      - If metrics merging is disabled:
+        the listener will just expose Envoy sidecar metrics.
+    Defaults to var.metrics_enabled
+    EOF
+
+  default = "-"
+}
+
+variable "connect_inject_default_enable_merging" {
+  description = "Configures the Consul sidecar to run a merged metrics server to combine and serve both Envoy and Connect service metrics. This feature is available only in Consul v1.10-alpha or greater."
+  default     = false
+}
+
+variable "connect_inject_default_merged_metrics_port" {
+  description = "Configures the port at which the Consul sidecar will listen on to return combined metrics. This port only needs to be changed if it conflicts with the application's ports."
+  default     = 20100
+}
+
+variable "connect_inject_default_prometheus_scrape_port" {
+  description = <<-EOF
+    Configures the port Prometheus will scrape metrics from, by configuring
+    the Pod annotation `prometheus.io/port` and the corresponding listener in
+    the Envoy sidecar.
+    NOTE: This is *not* the port that your application exposes metrics on.
+    That can be configured with the
+    `consul.hashicorp.com/service-metrics-port` annotation.
+    EOF
+  default     = 20200
+}
+
+variable "connect_inject_default_prometheus_scrape_path" {
+  description = <<-EOF
+    Configures the path Prometheus will scrape metrics from, by configuring the pod
+    annotation `prometheus.io/path` and the corresponding handler in the Envoy
+    sidecar.
+    NOTE: This is *not* the path that your application exposes metrics on.
+    That can be configured with the
+    `consul.hashicorp.com/service-metrics-path` annotation.
+    EOF
+  default     = "/metrics"
 }
