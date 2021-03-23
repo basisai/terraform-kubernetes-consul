@@ -13,6 +13,11 @@ resource "helm_release" "consul" {
   ]
 }
 
+# To allow for easier viewing of diff for Consul Chart values
+resource "null_resource" "consul_values" {
+  triggers = local.consul_values
+}
+
 locals {
   consul_values = {
     name        = var.name != null ? jsonencode(var.name) : "null"
