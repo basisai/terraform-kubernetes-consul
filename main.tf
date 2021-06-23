@@ -9,16 +9,20 @@ resource "helm_release" "consul" {
   timeout     = var.chart_timeout
 
   values = [
-    templatefile("${path.module}/templates/values.yaml", local.consul_values),
+    local.chart_values,
   ]
 }
 
 # To allow for easier viewing of diff for Consul Chart values
 resource "null_resource" "consul_values" {
+  count = var.consul_raw_values ? 1 : 0
+
   triggers = local.consul_values
 }
 
 locals {
+  chart_values = templatefile("${path.module}/templates/values.yaml", local.consul_values)
+
   consul_values = {
     name        = var.name != null ? jsonencode(var.name) : "null"
     image       = "${var.consul_image_name}:${var.consul_image_tag}"
@@ -43,6 +47,10 @@ locals {
     server_tolerations    = jsonencode(var.server_tolerations)
     server_priority_class = var.server_priority_class
     server_annotations    = jsonencode(var.server_annotations)
+    consul_recursors      = jsonencode(var.consul_recursors)
+
+    server_service_account_annotations = jsonencode(var.server_service_account_annotations)
+    server_topology_spread_constraints = jsonencode(var.server_topology_spread_constraints)
 
     server_update_partition = var.server_update_partition
 
@@ -56,6 +64,8 @@ locals {
     client_priority_class = var.client_priority_class
     client_annotations    = jsonencode(var.client_annotations)
     client_labels         = jsonencode(var.client_labels)
+
+    client_service_account_annotations = jsonencode(var.client_service_account_annotations)
 
     server_security_context = jsonencode(var.server_security_context)
     client_security_context = jsonencode(var.client_security_context)
@@ -86,6 +96,8 @@ locals {
     sync_resources                = yamlencode(var.sync_resources)
     sync_priority_class           = var.sync_priority_class
 
+    sync_service_account_annotations = jsonencode(var.sync_service_account_annotations)
+
     enable_ui          = jsonencode(var.enable_ui)
     ui_service_type    = var.ui_service_type
     ui_annotations     = jsonencode(var.ui_annotations)
@@ -109,17 +121,19 @@ locals {
     consul_sidecar_container_resources     = yamlencode(var.consul_sidecar_container_resources)
     envoy_extra_args                       = var.envoy_extra_args != null ? jsonencode(var.envoy_extra_args) : "null"
 
-    inject_health_check                  = var.inject_health_check
-    inject_health_check_reconcile_period = var.inject_health_check_reconcile_period
-    cleanup_controller_reconcile_period  = var.cleanup_controller_reconcile_period
-
     controller_enable           = var.controller_enable
+    controller_replicas         = var.controller_replicas
     controller_log_level        = var.controller_log_level
     controller_resources        = yamlencode(var.controller_resources)
     controller_node_selector    = var.controller_node_selector != null ? jsonencode(var.controller_node_selector) : "null"
     controller_node_tolerations = var.controller_node_tolerations != null ? jsonencode(var.controller_node_tolerations) : "null"
     controller_node_affinity    = var.controller_node_affinity != null ? jsonencode(var.controller_node_affinity) : "null"
     controller_priority_class   = var.controller_priority_class
+
+    controller_service_account_annotations = jsonencode(var.controller_service_account_annotations)
+
+    transparent_proxy_default_enabled          = var.transparent_proxy_default_enabled
+    transparent_proxy_default_overwrite_probes = var.transparent_proxy_default_overwrite_probes
 
     terminating_gateway_enable   = var.terminating_gateway_enable
     terminating_gateway_defaults = yamlencode(var.terminating_gateway_defaults)
@@ -139,6 +153,8 @@ locals {
     connect_inject_default_merged_metrics_port    = var.connect_inject_default_merged_metrics_port
     connect_inject_default_prometheus_scrape_port = var.connect_inject_default_prometheus_scrape_port
     connect_inject_default_prometheus_scrape_path = var.connect_inject_default_prometheus_scrape_path
+
+    connect_inject_service_account_annotations = jsonencode(var.connect_inject_service_account_annotations)
   }
 }
 

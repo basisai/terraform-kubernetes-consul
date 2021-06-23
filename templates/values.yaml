@@ -24,10 +24,10 @@ global:
   # version tag, otherwise you may inadvertently upgrade your Consul version.
   #
   # ```yaml
-  # # Consul 1.5.0
-  # image: "consul:1.5.0"
-  # # Consul Enterprise 1.5.0
-  # image: "hashicorp/consul-enterprise:1.5.0-ent"
+  # # Consul 1.10.0
+  # image: "consul:1.10.0"
+  # # Consul Enterprise 1.10.0
+  # image: "hashicorp/consul-enterprise:1.10.0-ent"
   # ```
   image: ${image}
 
@@ -85,6 +85,13 @@ global:
     # secretKey is the key within the Kubernetes secret that holds the gossip
     # encryption key.
     secretKey: ${gossip_key}
+
+  # A list of addresses of upstream DNS servers that are used to recursively resolve DNS queries.
+  # These values are given as `-recursor` flags to Consul servers and clients.
+  # See https://www.consul.io/docs/agent/options#_recursor for more details.
+  # If this is an empty array (the default), then Consul DNS will only resolve queries for the Consul top level domain (by default `.consul`).
+  # @type: array<string>
+  recursors: ${consul_recursors}
 
   # Enables TLS (https://learn.hashicorp.com/tutorials/consul/tls-encryption-secure)
   # across the cluster to verify authenticity of the Consul servers and clients.
@@ -317,6 +324,8 @@ server:
     secretName: null
     # The key within the Kubernetes secret that holds the enterprise license.
     secretKey: null
+    # Manages license autoload. Required in Consul 1.10.0+, 1.9.7+ and 1.8.12+.
+    enableLicenseAutoload: true
 
   # Exposes the servers' gossip and RPC ports as hostPorts. To enable a client
   # agent outside of the k8s cluster to join the datacenter, you would need to
@@ -362,6 +371,19 @@ server:
   # a new CA and set of certificates. Additional Connect settings can be configured
   # by setting the `server.extraConfig` value.
   connect: ${connect_enable}
+
+  serviceAccount:
+    # This value defines additional annotations for the server service account. This should be formatted as a multi-line
+    # string.
+    #
+    # ```yaml
+    # annotations: |
+    #   "sample/annotation1": "foo"
+    #   "sample/annotation2": "bar"
+    # ```
+    #
+    # @type: string
+    annotations: ${server_service_account_annotations}
 
   # The resource requests (CPU, memory, etc.)
   # for each of the server agents. This should be a YAML map corresponding to a Kubernetes
@@ -496,6 +518,27 @@ server:
   # should be a multi-line string matching the Tolerations
   # (https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/) array in a Pod spec.
   tolerations: ${server_tolerations}
+
+  # Pod topology spread constraints for server pods.
+  # This should be a multi-line YAML string matching the `topologySpreadConstraints` array
+  # (https://kubernetes.io/docs/concepts/workloads/pods/pod-topology-spread-constraints/) in a Pod Spec.
+  #
+  # This requires K8S >= 1.18 (beta) or 1.19 (stable).
+  #
+  # Example:
+  #
+  # ```yaml
+  # topologySpreadConstraints: |
+  #   - maxSkew: 1
+  #     topologyKey: topology.kubernetes.io/zone
+  #     whenUnsatisfiable: DoNotSchedule
+  #     labelSelector:
+  #       matchLabels:
+  #         app: {{ template "consul.name" . }}
+  #         release: "{{ .Release.Name }}"
+  #         component: server
+  # ```
+  topologySpreadConstraints: ${server_topology_spread_constraints}
 
   # This value defines `nodeSelector` (https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#nodeselector)
   # labels for server pod assignment, formatted as a multi-line string.
@@ -655,6 +698,19 @@ client:
   # and the Consul servers are outside of the k8s cluster.
   # This also changes the clients' advertised IP to the `hostIP` rather than `podIP`.
   exposeGossipPorts: false
+
+  serviceAccount:
+    # This value defines additional annotations for the client service account. This should be formatted as a multi-line
+    # string.
+    #
+    # ```yaml
+    # annotations: |
+    #   "sample/annotation1": "foo"
+    #   "sample/annotation2": "bar"
+    # ```
+    #
+    # @type: string
+    annotations: ${client_service_account_annotations}
 
   # Resource settings for Client agents.
   # @recurse: false
@@ -850,6 +906,19 @@ client:
       # The key of the Kubernetes secret.
       secretKey: null
 
+    serviceAccount:
+      # This value defines additional annotations for the snapshot agent service account. This should be formatted as a
+      # multi-line string.
+      #
+      # ```yaml
+      # annotations: |
+      #   "sample/annotation1": "foo"
+      #   "sample/annotation2": "bar"
+      # ```
+      #
+      # @type: string
+      annotations: null
+
     # Resource settings for snapshot agent pods.
     # @recurse: false
     # @type: map
@@ -929,6 +998,19 @@ ui:
     # The service type to register.
     # @type: string
     type: ${ui_service_type}
+
+    # Optionally set the nodePort value of the ui service if using a NodePort service.
+    # If not set and using a NodePort service, Kubernetes will automatically assign
+    # a port.
+    nodePort:
+
+      # HTTP node port
+      # @type: integer
+      http: null
+
+      # HTTPS node port
+      # @type: integer
+      https: null
 
     # Annotations to apply to the UI service.
     # Example:
@@ -1178,6 +1260,19 @@ syncCatalog:
   # in a PodSpec.
   tolerations: ${sync_tolerations}
 
+  serviceAccount:
+    # This value defines additional annotations for the mesh gateways' service account. This should be formatted as a
+    # multi-line string.
+    #
+    # ```yaml
+    # annotations: |
+    #   "sample/annotation1": "foo"
+    #   "sample/annotation2": "bar"
+    # ```
+    #
+    # @type: string
+    annotations: ${sync_service_account_annotations}
+
   # Resource settings for sync catalog pods.
   # @recurse: false
   # @type: map
@@ -1190,6 +1285,19 @@ syncCatalog:
   # Override the default interval to perform syncing operations creating Consul services.
   # @type: string
   consulWriteInterval: null
+
+  # Extra labels to attach to the sync catalog pods. This should be a YAML map.
+  #
+  # Example:
+  #
+  # ```yaml
+  # extraLabels:
+  #   labelKey: label-value
+  #   anotherLabelKey: another-label-value
+  # ```
+  #
+  # @type: map
+  extraLabels: null
 
 # Configures the automatic Connect sidecar injector.
 connectInject:
@@ -1208,17 +1316,21 @@ connectInject:
   # to explicitly opt-out of injection.
   default: ${connect_inject_by_default}
 
-  # Enables synchronization of Kubernetes health probe status with Consul.
-  # NOTE: It is highly recommended to enable TLS with this feature because it requires
-  # making calls to Consul clients across the cluster. Without TLS enabled, these calls
-  # could leak ACL tokens should the cluster network become compromised.
-  healthChecks:
-    # Enables the Consul Health Check controller which syncs the readiness status of
-    # connect-injected pods with Consul.
-    enabled: ${inject_health_check}
-    # If `healthChecks.enabled` is set to `true`, `reconcilePeriod` defines how often a full state
-    # reconcile is done after the initial reconcile at startup is completed.
-    reconcilePeriod: ${inject_health_check_reconcile_period}
+  # Configures Transparent Proxy for Consul Service mesh services.
+  # Using this feature requires Consul 1.10.0-beta1+ and consul-k8s 0.26.0-beta1+.
+  transparentProxy:
+    # If true, then all Consul Service mesh will run with transparent proxy enabled by default,
+    # i.e. we enforce that all traffic within the pod will go through the proxy.
+    # This value is overridable via the "consul.hashicorp.com/transparent-proxy" pod annotation.
+    defaultEnabled: ${transparent_proxy_default_enabled}
+
+    # If true, we will overwrite Kubernetes HTTP probes of the pod to point to the Envoy proxy instead.
+    # This setting is recommended because with traffic being enforced to go through the Envoy proxy,
+    # the probes on the pod will fail because kube-proxy doesn't have the right certificates
+    # to talk to Envoy.
+    # This value is also overridable via the "consul.hashicorp.com/transparent-proxy-overwrite-probes" annotation.
+    # Note: This value has no effect if transparent proxy is disabled on the pod.
+    defaultOverwriteProbes: ${transparent_proxy_default_overwrite_probes}
 
   # Configures metrics for Consul Connect services. All values are overridable
   # via annotations on a per-pod basis.
@@ -1258,17 +1370,6 @@ connectInject:
     # `consul.hashicorp.com/service-metrics-path` annotation.
     defaultPrometheusScrapePath: ${connect_inject_default_prometheus_scrape_path}
 
-  # Cleanup controller cleans up Consul service instances that remain registered
-  # despite their pods no longer running. This could happen if the pod's `preStop`
-  # hook failed to execute for some reason.
-  cleanupController:
-    # How often to do a full reconcile where the controller looks at all pods
-    # and service instances and ensure the state is correct.
-    # The controller reacts to each delete event immediately but if it misses
-    # an event due to being down or a network issue, the reconcile loop will
-    # handle cleaning up any missed deleted pods.
-    reconcilePeriod: "${cleanup_controller_reconcile_period}"
-
   # Used to pass arguments to the injected envoy sidecar.
   # Valid arguments to pass to envoy can be found here: https://www.envoyproxy.io/docs/envoy/latest/operations/cli
   # e.g "--log-level debug --disable-hot-restart"
@@ -1285,6 +1386,19 @@ connectInject:
 
   # Log verbosity level. One of "debug", "info", "warn", or "error".
   logLevel: ${connect_inject_log_level}
+
+  serviceAccount:
+    # This value defines additional annotations for the injector service account. This should be formatted as a
+    # multi-line string.
+    #
+    # ```yaml
+    # annotations: |
+    #   "sample/annotation1": "foo"
+    #   "sample/annotation2": "bar"
+    # ```
+    #
+    # @type: string
+    annotations: ${connect_inject_service_account_annotations}
 
   # Resource settings for connect inject pods.
   # @recurse: false
@@ -1365,32 +1479,6 @@ connectInject:
     # pod in the k8s `staging` namespace will be registered into the
     # `k8s-staging` Consul namespace.
     mirroringK8SPrefix: ""
-
-  # The certs section configures how the webhook TLS certs are configured.
-  # These are the TLS certs for the Kube apiserver communicating to the
-  # webhook. By default, the injector will generate and manage its own certs,
-  # but this requires the ability for the injector to update its own
-  # MutatingWebhookConfiguration. In a production environment, custom certs
-  # should probably be used. Configure the values below to enable this.
-  certs:
-    # Name of the secret that has the TLS certificate and
-    # private key to serve the injector webhook. If this is null, then the
-    # injector will default to its automatic management mode that will assign
-    # a service account to the injector to generate its own certificates.
-    secretName: null
-
-    # Base64-encoded PEM-encoded certificate bundle for the
-    # CA that signed the TLS certificate that the webhook serves. This must
-    # be set if secretName is non-null.
-    caBundle: ""
-
-    # Name of the file within the secret for
-    # the TLS cert.
-    certName: tls.crt
-
-    # Name of the file within the secret for
-    # the private TLS key.
-    keyName: tls.key
 
   # Selector labels for connectInject pod assignment, formatted as a multi-line string.
   # ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#nodeselector
@@ -1488,10 +1576,23 @@ controller:
   enabled: ${controller_enable}
 
   # The number of deployment replicas.
-  replicas: 1
+  replicas: ${controller_replicas}
 
   # Log verbosity level. One of "debug", "info", "warn", or "error".
   logLevel: ${controller_log_level}
+
+  serviceAccount:
+    # This value defines additional annotations for the controller service account. This should be formatted as a
+    # multi-line string.
+    #
+    # ```yaml
+    # annotations: |
+    #   "sample/annotation1": "foo"
+    #   "sample/annotation2": "bar"
+    # ```
+    #
+    # @type: string
+    annotations: ${controller_service_account_annotations}
 
   # Resource settings for controller pods.
   # @recurse: false
@@ -1607,7 +1708,7 @@ meshGateway:
     # The targetPort will be set to meshGateway.containerPort.
     port: 443
 
-    # Optionally hardcode the nodePort of the service if using type: NodePort.
+    # Optionally set the nodePort value of the service if using a NodePort service.
     # If not set and using type: NodePort, Kubernetes will automatically assign
     # a port.
     # @type: integer
@@ -1653,6 +1754,19 @@ meshGateway:
   # agent.
   # @type: integer
   hostPort: null
+
+  serviceAccount:
+    # This value defines additional annotations for the mesh gateways' service account. This should be formatted as a
+    # multi-line string.
+    #
+    # ```yaml
+    # annotations: |
+    #   "sample/annotation1": "foo"
+    #   "sample/annotation2": "bar"
+    # ```
+    #
+    # @type: string
+    annotations: null
 
   # If there are no connect-enabled services running, then the gateway
   # will fail health checks. You may disable health checks as a temporary
@@ -1772,6 +1886,19 @@ ingressGateways:
       # @type: string
       additionalSpec: null
 
+    serviceAccount:
+      # This value defines additional annotations for the ingress gateways' service account. This should be formatted
+      # as a multi-line string.
+      #
+      # ```yaml
+      # annotations: |
+      #   "sample/annotation1": "foo"
+      #   "sample/annotation2": "bar"
+      # ```
+      #
+      # @type: string
+      annotations: null
+
     # Resource limits for all ingress gateway pods
     # @recurse: false
     # @type: map
@@ -1837,17 +1964,6 @@ ingressGateways:
   # @type: array<map>
   gateways:
     - name: ingress-gateway
-
-# Configures a demo Prometheus installation.
-prometheus:
-  # When true, the Helm chart will install a demo Prometheus server instance
-  # alongside Consul.
-  enabled: false
-# Configures a demo Grafana installation.
-grafana:
-  # When true, the Helm chart will install a demo Grafana instance
-  # alongside Consul.
-  enabled: false
 
 # Configuration options for terminating gateways. Default values for all
 # terminating gateways are defined in `terminatingGateways.defaults`. Any of
@@ -1943,6 +2059,19 @@ terminatingGateways:
     # @type: string
     # annotations: null
 
+    # serviceAccount:
+    #   # This value defines additional annotations for the terminating gateways' service account. This should be
+    #   # formatted as a multi-line string.
+    #   #
+    #   # ```yaml
+    #   # annotations: |
+    #   #   "sample/annotation1": "foo"
+    #   #   "sample/annotation2": "bar"
+    #   # ```
+    #   #
+    #   # @type: string
+    #   annotations: null
+
     # [Enterprise Only] `consulNamespace` defines the Consul namespace to register
     # the gateway into. Requires `global.enableConsulNamespaces` to be true and
     # Consul Enterprise v1.7+ with a valid Consul Enterprise license.
@@ -1956,6 +2085,12 @@ terminatingGateways:
   # @type: array<map>
   gateways:
     ${indent(4, terminating_gateways)}
+
+# Configures a demo Prometheus installation.
+prometheus:
+  # When true, the Helm chart will install a demo Prometheus server instance
+  # alongside Consul.
+  enabled: false
 
 # Control whether a test Pod manifest is generated when running helm template.
 # When using helm install, the test Pod is not submitted to the cluster so this
