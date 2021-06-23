@@ -24,7 +24,9 @@ resource "null_resource" "consul_values" {
 resource "null_resource" "consul_chart_values" {
   count = var.consul_chart_values ? 1 : 0
 
-  triggers = yamlencode(yamldecode(local.chart_values))
+  triggers = {
+    yaml = yamlencode(yamldecode(local.chart_values))
+  }
 }
 
 locals {
