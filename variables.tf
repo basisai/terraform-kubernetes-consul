@@ -1156,9 +1156,3 @@ variable "consul_raw_values" {
   type        = bool
   default     = true
 }
-
-variable "consul_chart_values" {
-  description = "Create a `null_resource` with the rendered YAML values file. Useful for observing diffs."
-  type        = bool
-  default     = true
-}

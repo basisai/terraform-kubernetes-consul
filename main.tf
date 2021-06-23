@@ -20,15 +20,6 @@ resource "null_resource" "consul_values" {
   triggers = local.consul_values
 }
 
-# To allow for easier viewing of diff for Consul Chart values
-resource "null_resource" "consul_chart_values" {
-  count = var.consul_chart_values ? 1 : 0
-
-  triggers = {
-    yaml = yamlencode(yamldecode(local.chart_values))
-  }
-}
-
 locals {
   chart_values = templatefile("${path.module}/templates/values.yaml", local.consul_values)
 
