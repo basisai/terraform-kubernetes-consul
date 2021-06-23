@@ -50,7 +50,7 @@ variable "consul_image_name" {
 
 variable "consul_image_tag" {
   description = "Docker image tag of Consul to run"
-  default     = "1.9.4"
+  default     = "1.10.0"
 }
 
 variable "consul_k8s_image" {
@@ -60,12 +60,12 @@ variable "consul_k8s_image" {
 
 variable "consul_k8s_tag" {
   description = "Image tag of the consul-k8s binary to run"
-  default     = "0.25.0"
+  default     = "0.26.0"
 }
 
 variable "image_envoy" {
   description = "Image and tag for Envoy Docker image to use for sidecar proxies, mesh, terminating and ingress gateways"
-  default     = "envoyproxy/envoy-alpine:v1.16.0"
+  default     = "envoyproxy/envoy-alpine:v1.18.3"
 }
 
 variable "consul_domain" {
@@ -158,6 +158,12 @@ variable "server_tolerations" {
   default     = ""
 }
 
+variable  "server_topology_spread_constraints" {
+  description = "YAML string for topology spread constraints for server pods"
+  type  = string
+  default = ""
+}
+
 variable "client_affinity" {
   description = "affinity Settings for Client pods, formatted as a multi-line YAML string."
   default     = null
@@ -170,6 +176,12 @@ variable "server_priority_class" {
 
 variable "server_annotations" {
   description = "A YAML string for server pods"
+  default     = ""
+}
+
+variable "server_service_account_annotations" {
+  description = "YAML string for annotations for server service account"
+  type        = string
   default     = ""
 }
 
@@ -231,6 +243,12 @@ variable "client_annotations" {
 variable "client_labels" {
   description = "Additional labels for client pods"
   default     = {}
+}
+
+variable "client_service_account_annotations" {
+  description = "YAML string for annotations for client service account"
+  type        = string
+  default     = ""
 }
 
 variable "client_priority_class" {
@@ -307,6 +325,12 @@ variable "sync_tolerations" {
   default     = ""
 }
 
+variable "sync_service_account_annotations" {
+  description = "YAML string for annotations for sync catalog service account"
+  type        = string
+  default     = ""
+}
+
 variable "sync_priority_class" {
   description = "Priority Class Name for Consul Sync Catalog"
   default     = ""
@@ -376,6 +400,12 @@ variable "core_dns_labels" {
     "k8s-app"                         = "kube-dns"
     "addonmanager.kubernetes.io/mode" = "EnsureExists"
   }
+}
+
+variable "consul_recursors" {
+  description = "A list of addresses of upstream DNS servers that are used to recursively resolve DNS queries."
+  type        = list(string)
+  default     = []
 }
 
 ###########################
@@ -497,19 +527,19 @@ variable "envoy_extra_args" {
   default     = null
 }
 
-variable "inject_health_check" {
-  description = "Enables the Consul Health Check controller which syncs the readiness status of connect-injected pods with Consul."
+###########################
+# Transparent Proxy
+###########################
+variable "transparent_proxy_default_enabled" {
+  description = "Enable transparent proxy by default on all connect injected pods"
+  type        = bool
   default     = true
 }
 
-variable "inject_health_check_reconcile_period" {
-  description = "defines how often a full state reconcile is done after the initial reconcile at startup is completed."
-  default     = "1m"
-}
-
-variable "cleanup_controller_reconcile_period" {
-  description = "How often to do a full reconcile where the controller looks at all pods and service instances and ensure the state is correct. The controller reacts to each delete event immediately but if it misses an event due to being down or a network issue, the reconcile loop will handle cleaning up any missed deleted pods."
-  default     = "5m"
+variable "transparent_proxy_default_overwrite_probes" {
+  description = "Overwrite HTTP probes by default when transparent proxy is in use"
+  type        = bool
+  default     = true
 }
 
 ###########################
@@ -518,6 +548,12 @@ variable "cleanup_controller_reconcile_period" {
 variable "controller_enable" {
   description = "Enable Consul Configuration Entries CRD Controller"
   default     = false
+}
+
+variable "controller_replicas" {
+  description = "Number of replicas for the CRD controller"
+  type        = number
+  default     = 1
 }
 
 variable "controller_log_level" {
@@ -556,6 +592,12 @@ variable "controller_node_affinity" {
 
 variable "controller_priority_class" {
   description = "Priority class for Controller pods"
+  default     = ""
+}
+
+variable "controller_service_account_annotations" {
+  description = "YAML string with annotations for CRD Controller service account"
+  type        = string
   default     = ""
 }
 
@@ -649,6 +691,18 @@ variable "terminating_gateway_defaults" {
     #   annotations: |
     #     "annotation-key": "annotation-value"
     annotations = null
+
+    # This value defines additional annotations for the terminating gateways' service account. This should be
+    # formatted as a multi-line string.
+    #
+    # ```yaml
+    # annotations: |
+    #   "sample/annotation1": "foo"
+    #   "sample/annotation2": "bar"
+    # ```
+  serviceAccount = {
+      annotations = null
+    }
 
     # [Enterprise Only] `consulNamespace` defines the Consul namespace to register
     # the gateway into.  Requires `global.enableConsulNamespaces` to be true and
@@ -1086,4 +1140,25 @@ variable "connect_inject_default_prometheus_scrape_path" {
     `consul.hashicorp.com/service-metrics-path` annotation.
     EOF
   default     = "/metrics"
+}
+
+variable "connect_inject_service_account_annotations" {
+  description = "YAML string with annotations for the Connect Inject service account"
+  type        = string
+  default     = ""
+}
+
+##################
+# Diff aid
+##################
+variable "consul_raw_values" {
+  description = "Create a `null_resource` with the raw values passed in to render the YAML values file. Useful for observing diffs."
+  type        = bool
+  default     = true
+}
+
+variable "consul_chart_values" {
+  description = "Create a `null_resource` with the rendered YAML values file. Useful for observing diffs."
+  type        = bool
+  default     = true
 }
