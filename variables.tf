@@ -158,10 +158,10 @@ variable "server_tolerations" {
   default     = ""
 }
 
-variable  "server_topology_spread_constraints" {
+variable "server_topology_spread_constraints" {
   description = "YAML string for topology spread constraints for server pods"
-  type  = string
-  default = ""
+  type        = string
+  default     = ""
 }
 
 variable "client_affinity" {
@@ -700,7 +700,7 @@ variable "terminating_gateway_defaults" {
     #   "sample/annotation1": "foo"
     #   "sample/annotation2": "bar"
     # ```
-  serviceAccount = {
+    serviceAccount = {
       annotations = null
     }
 

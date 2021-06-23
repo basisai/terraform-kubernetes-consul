@@ -139,7 +139,7 @@ locals {
 
     controller_service_account_annotations = jsonencode(var.controller_service_account_annotations)
 
-    transparent_proxy_default_enabled = var.transparent_proxy_default_enabled
+    transparent_proxy_default_enabled          = var.transparent_proxy_default_enabled
     transparent_proxy_default_overwrite_probes = var.transparent_proxy_default_overwrite_probes
 
     terminating_gateway_enable   = var.terminating_gateway_enable
