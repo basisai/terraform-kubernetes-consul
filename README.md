@@ -1,4 +1,4 @@
-# Terraform Consul on Kubenretes
+# Terraform Consul on Kubernetes
 
 Deploys a [Consul](https://www.consul.io/) cluster on Kubernetes cluster running on any cloud
 provider. This module makes use of the official Hashicorp
