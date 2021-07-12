@@ -151,8 +151,9 @@ data "template_file" "exporter_values" {
       "consul.ca-file" = var.tls_enable_auto_encrypt ? "/${local.exporter_volume}/connect.pem" : (var.tls_ca != null ? "/${local.exporter_volume}/server.pem" : "")
     }))
 
-    rbac_enabled = var.exporter_rbac_enabled
-    psp_emabled  = var.exporter_psp
+    rbac_enabled            = var.exporter_rbac_enabled
+    psp_enabled             = var.exporter_psp
+    service_monitor_enabled = var.exporter_service_monitor
 
     consul_server_and_port = "${var.tls_enabled ? "https://" : ""}$(HOST_IP):${var.tls_enabled ? "8501" : "8500"}"
 

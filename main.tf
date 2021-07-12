@@ -30,6 +30,7 @@ locals {
     image_envoy = var.image_envoy
 
     pod_security_policy_enable = var.pod_security_policy_enable
+    log_json_enable            = var.log_json_enable
 
     datacenter = var.server_datacenter
 

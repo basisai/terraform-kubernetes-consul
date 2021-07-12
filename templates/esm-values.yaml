@@ -3,6 +3,11 @@ replicaCount: ${replica}
 image:
   repository: ${image}
   tag: ${tag}
+  pullPolicy: IfNotPresent
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
 
 resources: ${resources}
   # We usually recommend not to specify default resources and to leave this as a conscious
@@ -16,8 +21,27 @@ resources: ${resources}
   #   cpu: 100m
   #   memory: 128Mi
 
+nodeSelector: null
+
+tolerations: ${tolerations}
+
+affinity: ${affinity}
+
 env: ${env}
 
+# The sysctl below is needed for UDP Ping to work
+# See https://github.com/tatsushid/go-fastping/issues/25#issuecomment-236203705
+# It is not enabled by default because it is an "unsafe" sysctl
+# See https://kubernetes.io/docs/tasks/administer-cluster/sysctl-cluster/
+# Alternatively, set initContainerSetSysCtl to `true`
+podSecurityContext: ${pod_security_context}
+  # sysctls:
+  #   - name: "net.ipv4.ping_group_range"
+  #     value: "0 65535"
+
+containerSecurityContext: ${container_security_context}
+
+# See above
 initContainerSetSysCtl: ${init_container_set_sysctl}
 
 config:
@@ -37,8 +61,8 @@ config:
 
   # The node metadata values used for the ESM to qualify a node in the catalog
   # as an "external node".
-
   externalNodeMeta: ${external_node_meta}
+
   # The length of time to wait before reaping an external node due to failed
   # pings.
   nodeReconnectTimeout: "${node_reconnect_timeout}"
@@ -77,7 +101,3 @@ config:
       server:
         address: ${server_address}
         port: 8501
-
-affinity: ${affinity}
-
-tolerations: ${tolerations}

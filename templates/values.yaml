@@ -9,6 +9,16 @@ global:
   # setting `server.enabled` to true.
   enabled: true
 
+  # The default log level to apply to all components which do not otherwise override this setting.
+  # It is recommended to generally not set this below "info" unless actively debugging due to logging verbosity.
+  # One of "debug", "info", "warn", or "error".
+  # @type: string
+  logLevel: "info"
+
+  # Enable all component logs to be output in JSON format.
+  # @type: boolean
+  logJSON: ${log_json_enable}
+
   # Set the prefix used for all resources in the Helm chart. If not set,
   # the prefix will be `<helm release name>-consul`.
   # @type: string
@@ -693,6 +703,12 @@ client:
   # required for Connect.
   grpc: ${client_grpc}
 
+  # nodeMeta specifies an arbitrary metadata key/value pair to associate with the node
+  # (see https://www.consul.io/docs/agent/options.html#_node_meta)
+  nodeMeta:
+    pod-name: $${HOSTNAME}
+    host-ip: $${HOST_IP}
+
   # If true, the Helm chart will expose the clients' gossip ports as hostPorts.
   # This is only necessary if pod IPs in the k8s cluster are not directly routable
   # and the Consul servers are outside of the k8s cluster.
@@ -892,7 +908,7 @@ client:
     # If true, the chart will install resources necessary to run the snapshot agent.
     enabled: false
 
-        # The number of snapshot agents to run.
+    # The number of snapshot agents to run.
     replicas: 2
 
     # A Kubernetes secret that should be manually created to contain the entire
@@ -1037,6 +1053,9 @@ ui:
     # This will create an Ingress resource for the Consul UI.
     # @type: boolean
     enabled: false
+
+    # pathType override - see: https://kubernetes.io/docs/concepts/services-networking/ingress/#path-types
+    pathType: Prefix
 
     # hosts is a list of host name to create Ingress rules.
     #
@@ -1307,7 +1326,7 @@ connectInject:
 
   # Image for consul-k8s that contains the injector
   # @type: string
-  iamge: null
+  image: null
 
   # If true, the injector will inject the
   # Connect sidecar into all pods by default. Otherwise, pods must specify the
@@ -1767,11 +1786,6 @@ meshGateway:
     #
     # @type: string
     annotations: null
-
-  # If there are no connect-enabled services running, then the gateway
-  # will fail health checks. You may disable health checks as a temporary
-  # workaround.
-  enableHealthChecks: true
 
   resources:
     requests:
