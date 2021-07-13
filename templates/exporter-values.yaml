@@ -3,7 +3,7 @@ replicaCount: ${replica}
 rbac:
   # Specifies whether RBAC resources should be created
   create: ${rbac_enabled}
-  pspEnabled: ${psp_emabled}
+  pspEnabled: ${psp_enabled}
   pspUseAppArmor: true
 serviceAccount:
   # Specifies whether a ServiceAccount should be created
@@ -15,11 +15,17 @@ serviceAccount:
 image:
   repository: ${image}
   tag: ${tag}
+  pullPolicy: IfNotPresent
+
+nameOverride: ""
+fullnameOverride: ""
 
 consulServer: ${consul_server_and_port}
 
 # Flags - for a list visit https://github.com/prometheus/consul_exporter#flags
 options: ${options}
+  # no-consul.health-summary:
+  # kv.filter=foobar
 
 service:
   type: ClusterIP
@@ -50,6 +56,25 @@ resources: ${resources}
   # requests:
   #   cpu: 100m
   #   memory: 128Mi
+
+serviceMonitor:
+  # When set true then use a ServiceMonitor to configure scraping
+  enabled: ${service_monitor_enabled}
+  # Set the namespace the ServiceMonitor should be deployed
+  # namespace: monitoring
+  # Set how frequently Prometheus should scrape
+  # interval: 30s
+  # Set path to consul-exporter telemtery-path
+  # telemetryPath: /metrics
+  # Set labels for the ServiceMonitor, use this to define your scrape label for Prometheus Operator
+  # labels:
+  # Set timeout for scrape
+  # timeout: 10s
+  # Set of labels to transfer on the Kubernetes Service onto the target.
+  # targetLabels: []
+  # metricRelabelings: []
+
+nodeSelector: null
 
 tolerations: ${tolerations}
 

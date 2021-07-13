@@ -25,6 +25,9 @@ locals {
     affinity    = jsonencode(var.esm_affinity)
     tolerations = jsonencode(var.esm_tolerations)
 
+    pod_security_context       = jsonencode(var.esm_pod_security_context)
+    container_security_context = jsonencode(var.esm_container_security_context)
+
     env       = jsonencode(var.esm_env)
     log_level = var.esm_log_level
 

@@ -132,7 +132,7 @@ No modules.
 | <a name="input_chart_namespace"></a> [chart\_namespace](#input\_chart\_namespace) | Namespace to install the chart into | `string` | `"default"` | no |
 | <a name="input_chart_repository"></a> [chart\_repository](#input\_chart\_repository) | Helm repository for the chart | `string` | `"https://helm.releases.hashicorp.com"` | no |
 | <a name="input_chart_timeout"></a> [chart\_timeout](#input\_chart\_timeout) | Timeout to wait for the Chart to be deployed. The chart waits for all Daemonset pods to be healthy before ending. Increase this for larger clusers to avoid timeout | `number` | `1800` | no |
-| <a name="input_chart_version"></a> [chart\_version](#input\_chart\_version) | Version of Chart to install. Set to empty to install the latest version | `string` | `"0.31.1"` | no |
+| <a name="input_chart_version"></a> [chart\_version](#input\_chart\_version) | Version of Chart to install. Set to empty to install the latest version | `string` | `"0.32.1"` | no |
 | <a name="input_client_affinity"></a> [client\_affinity](#input\_client\_affinity) | affinity Settings for Client pods, formatted as a multi-line YAML string. | `any` | `null` | no |
 | <a name="input_client_annotations"></a> [client\_annotations](#input\_client\_annotations) | A YAML string for client pods | `string` | `""` | no |
 | <a name="input_client_enabled"></a> [client\_enabled](#input\_client\_enabled) | Enable running Consul client agents on every Kubernetes node | `string` | `"-"` | no |
@@ -197,6 +197,7 @@ No modules.
 | <a name="input_esm_chart_name"></a> [esm\_chart\_name](#input\_esm\_chart\_name) | Name of the ESM Chart name | `string` | `"consul-esm"` | no |
 | <a name="input_esm_chart_repository"></a> [esm\_chart\_repository](#input\_esm\_chart\_repository) | ESM Chart repository | `string` | `"https://basisai.github.io/charts/"` | no |
 | <a name="input_esm_chart_version"></a> [esm\_chart\_version](#input\_esm\_chart\_version) | ESM Chart version | `string` | `"0.2.2"` | no |
+| <a name="input_esm_container_security_context"></a> [esm\_container\_security\_context](#input\_esm\_container\_security\_context) | securityContext for ESM containers | `map` | `{}` | no |
 | <a name="input_esm_env"></a> [esm\_env](#input\_esm\_env) | Environment variables for Consul ESM | `list` | `[]` | no |
 | <a name="input_esm_external_node_meta"></a> [esm\_external\_node\_meta](#input\_esm\_external\_node\_meta) | The node metadata values used for the ESM to qualify a node in the catalog as an "external node". | `map` | <pre>{<br>  "external-node": "true"<br>}</pre> | no |
 | <a name="input_esm_http_addr"></a> [esm\_http\_addr](#input\_esm\_http\_addr) | HTTP address of the local Consul agent | `string` | `""` | no |
@@ -208,6 +209,7 @@ No modules.
 | <a name="input_esm_node_probe_interval"></a> [esm\_node\_probe\_interval](#input\_esm\_node\_probe\_interval) | The interval to ping and update coordinates for external nodes that have 'external-probe' set to true. By default, ESM will attempt to ping and  update the coordinates for all nodes it is watching every 10 seconds. | `string` | `"10s"` | no |
 | <a name="input_esm_node_reconnect_timeout"></a> [esm\_node\_reconnect\_timeout](#input\_esm\_node\_reconnect\_timeout) | The length of time to wait before reaping an external node due to failed pings. | `string` | `"72h"` | no |
 | <a name="input_esm_ping_type"></a> [esm\_ping\_type](#input\_esm\_ping\_type) | The method to use for pinging external nodes. | `string` | `"udp"` | no |
+| <a name="input_esm_pod_security_context"></a> [esm\_pod\_security\_context](#input\_esm\_pod\_security\_context) | securityContext for ESM pods | `map` | `{}` | no |
 | <a name="input_esm_release_name"></a> [esm\_release\_name](#input\_esm\_release\_name) | Name of the ESM Chart Release | `string` | `"consul-esm"` | no |
 | <a name="input_esm_replica"></a> [esm\_replica](#input\_esm\_replica) | Number of ESM replica | `number` | `3` | no |
 | <a name="input_esm_resources"></a> [esm\_resources](#input\_esm\_resources) | Resources for ESM | `map` | <pre>{<br>  "limits": {<br>    "memory": "256Mi"<br>  },<br>  "requests": {<br>    "cpu": "200m"<br>  }<br>}</pre> | no |
@@ -221,7 +223,7 @@ No modules.
 | <a name="input_exporter_affinity"></a> [exporter\_affinity](#input\_exporter\_affinity) | Affinity for Consul Exporter | `map` | `{}` | no |
 | <a name="input_exporter_chart_name"></a> [exporter\_chart\_name](#input\_exporter\_chart\_name) | Name of the Consul Exporter Chart name | `string` | `"prometheus-consul-exporter"` | no |
 | <a name="input_exporter_chart_repository"></a> [exporter\_chart\_repository](#input\_exporter\_chart\_repository) | Consul Exporter Chart repository | `string` | `"https://prometheus-community.github.io/helm-charts"` | no |
-| <a name="input_exporter_chart_version"></a> [exporter\_chart\_version](#input\_exporter\_chart\_version) | Consul Exporter Chart version | `string` | `"0.2.0"` | no |
+| <a name="input_exporter_chart_version"></a> [exporter\_chart\_version](#input\_exporter\_chart\_version) | Consul Exporter Chart version | `string` | `"0.4.0"` | no |
 | <a name="input_exporter_env"></a> [exporter\_env](#input\_exporter\_env) | Additional Environment Variables for Exporter | `list` | `[]` | no |
 | <a name="input_exporter_extra_containers"></a> [exporter\_extra\_containers](#input\_exporter\_extra\_containers) | Extra extra Containers | `list` | `[]` | no |
 | <a name="input_exporter_extra_volume_mounts"></a> [exporter\_extra\_volume\_mounts](#input\_exporter\_extra\_volume\_mounts) | Extra volume mounts for Exporter | `list` | `[]` | no |
@@ -235,11 +237,13 @@ No modules.
 | <a name="input_exporter_replica"></a> [exporter\_replica](#input\_exporter\_replica) | Number of Consul Exporter replicas | `number` | `1` | no |
 | <a name="input_exporter_resources"></a> [exporter\_resources](#input\_exporter\_resources) | Resources for Consul Exporter | `map` | <pre>{<br>  "limits": {<br>    "memory": "256Mi"<br>  },<br>  "requests": {<br>    "cpu": "200m"<br>  }<br>}</pre> | no |
 | <a name="input_exporter_service_annotations"></a> [exporter\_service\_annotations](#input\_exporter\_service\_annotations) | Consul Exporter service's annotations | `map` | `{}` | no |
+| <a name="input_exporter_service_monitor"></a> [exporter\_service\_monitor](#input\_exporter\_service\_monitor) | Create a ServiceMonitor to configure scraping | `bool` | `false` | no |
 | <a name="input_exporter_tag"></a> [exporter\_tag](#input\_exporter\_tag) | Docker Image tag for Consul Exporter | `string` | `"v0.7.1"` | no |
 | <a name="input_exporter_tolerations"></a> [exporter\_tolerations](#input\_exporter\_tolerations) | Tolerations for Consul Exporter | `list` | `[]` | no |
 | <a name="input_fullname_override"></a> [fullname\_override](#input\_fullname\_override) | Fullname Override of Helm resources | `string` | `""` | no |
 | <a name="input_gossip_encryption_key"></a> [gossip\_encryption\_key](#input\_gossip\_encryption\_key) | 32 Bytes Base64 Encoded Consul Gossip Encryption Key. Set to `null` to disable | `any` | `null` | no |
 | <a name="input_image_envoy"></a> [image\_envoy](#input\_image\_envoy) | Image and tag for Envoy Docker image to use for sidecar proxies, mesh, terminating and ingress gateways | `string` | `"envoyproxy/envoy-alpine:v1.18.3"` | no |
+| <a name="input_log_json_enable"></a> [log\_json\_enable](#input\_log\_json\_enable) | Enable all component logs to be output in JSON format | `bool` | `false` | no |
 | <a name="input_max_history"></a> [max\_history](#input\_max\_history) | Max History for Helm | `number` | `20` | no |
 | <a name="input_metrics_enabled"></a> [metrics\_enabled](#input\_metrics\_enabled) | Configures the Helm chart’s components to expose Prometheus metrics for the Consul service mesh. | `bool` | `false` | no |
 | <a name="input_name"></a> [name](#input\_name) | Sets the prefix used for all resources in the helm chart. If not set, the prefix will be "<helm release name>-consul". | `any` | `null` | no |

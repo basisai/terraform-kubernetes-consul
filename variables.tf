@@ -15,7 +15,7 @@ variable "chart_repository" {
 
 variable "chart_version" {
   description = "Version of Chart to install. Set to empty to install the latest version"
-  default     = "0.31.1"
+  default     = "0.32.1"
 }
 
 variable "chart_namespace" {
@@ -36,6 +36,11 @@ variable "name" {
 variable "fullname_override" {
   description = "Fullname Override of Helm resources"
   default     = ""
+}
+
+variable "log_json_enable" {
+  description = "Enable all component logs to be output in JSON format"
+  default     = false
 }
 
 variable "max_history" {
@@ -858,6 +863,16 @@ variable "esm_tolerations" {
   default     = []
 }
 
+variable "esm_pod_security_context" {
+  description = "securityContext for ESM pods"
+  default     = {}
+}
+
+variable "esm_container_security_context" {
+  description = "securityContext for ESM containers"
+  default     = {}
+}
+
 variable "esm_log_level" {
   description = "Log level for ESM"
   default     = "INFO"
@@ -928,7 +943,7 @@ variable "esm_node_agent_port" {
 
 variable "consul_template_image" {
   description = "Image for Consul Template"
-  default     = "hashicorp/consul-template:0.25.1-light"
+  default     = "hashicorp/consul-template:0.26.0"
 }
 
 variable "esm_server_address" {
@@ -966,7 +981,7 @@ variable "exporter_chart_repository" {
 
 variable "exporter_chart_version" {
   description = "Consul Exporter Chart version"
-  default     = "0.2.0"
+  default     = "0.4.0"
 }
 
 variable "exporter_replica" {
@@ -1020,6 +1035,11 @@ variable "exporter_rbac_enabled" {
 variable "exporter_psp" {
   description = "Create PSP resources for Exporter"
   default     = true
+}
+
+variable "exporter_service_monitor" {
+  description = "Create a ServiceMonitor to configure scraping"
+  default     = false
 }
 
 variable "exporter_options" {
