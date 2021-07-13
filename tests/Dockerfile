@@ -1,4 +1,4 @@
-FROM wata727/tflint:0.29.2
+FROM wata727/tflint:0.29.1
 
 ARG TERRAFORM_VERSION=1.0.1
 
