@@ -15,7 +15,7 @@ variable "chart_repository" {
 
 variable "chart_version" {
   description = "Version of Chart to install. Set to empty to install the latest version"
-  default     = "0.32.1"
+  default     = "0.33.0"
 }
 
 variable "chart_namespace" {
@@ -60,12 +60,12 @@ variable "consul_image_tag" {
 
 variable "consul_k8s_image" {
   description = "Docker image of the consul-k8s binary to run"
-  default     = "hashicorp/consul-k8s"
+  default     = "hashicorp/consul-k8s-control-plane"
 }
 
 variable "consul_k8s_tag" {
   description = "Image tag of the consul-k8s binary to run"
-  default     = "0.26.0"
+  default     = "0.33.0"
 }
 
 variable "image_envoy" {
@@ -426,6 +426,12 @@ variable "enable_connect_inject" {
   default     = false
 }
 
+variable "connect_inject_replicas" {
+  description = "Number of replicas for Connect Inject deployment"
+  type        = number
+  default     = 2
+}
+
 variable "connect_inject_by_default" {
   description = "If true, the injector will inject the Connect sidecar into all pods by default. Otherwise, pods must specify the injection annotation to opt-in to Connect injection. If this is true, pods can use the same annotation to explicitly opt-out of injection."
   default     = false
@@ -477,7 +483,21 @@ variable "connect_inject_priority_class" {
 
 variable "connect_inject_log_level" {
   description = "Log verbosity level. One of debug, info, warn, or error."
-  default     = "info"
+  default     = ""
+}
+
+variable "connect_inject_failure_policy" {
+  description = <<-EOF
+  Sets the failurePolicy for the mutating webhook. By default this will cause pods not part of the consul installation to fail scheduling while the webhook
+  is offline. This prevents a pod from skipping mutation if the webhook were to be momentarily offline.
+  Once the webhook is back online the pod will be scheduled.
+  In some environments such as Kind this may have an undesirable effect as it may prevent volume provisioner pods from running
+  which can lead to hangs. In these environments it is recommend to use "Ignore" instead.
+  This setting can be safely disabled by setting to "Ignore".
+  EOF
+
+  type    = string
+  default = "Fail"
 }
 
 variable "connect_inject_sidecar_proxy_resources" {
@@ -563,7 +583,7 @@ variable "controller_replicas" {
 
 variable "controller_log_level" {
   description = "CRD Controller Log level."
-  default     = "info"
+  default     = ""
 }
 
 variable "controller_resources" {
@@ -797,6 +817,12 @@ variable "tls_ca" {
   default = null
 }
 
+variable "tls_server_cert_secret" {
+  description = "A Kubernetes secret containing a certificate & key for the server agents to use for TLS communication within the Consul cluster. Additional SANs are required."
+  type        = string
+  default     = null
+}
+
 ###########################
 # Consul ESM
 ###########################
@@ -822,7 +848,7 @@ variable "esm_chart_repository" {
 
 variable "esm_chart_version" {
   description = "ESM Chart version"
-  default     = "0.2.2"
+  default     = "0.3.0"
 }
 
 variable "esm_replica" {

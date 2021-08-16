@@ -82,6 +82,7 @@ locals {
     tls_cacert_secret_key  = var.tls_ca != null ? "cacert" : "null"
     tls_cakey_secret_name  = var.tls_ca != null ? kubernetes_secret.secrets.metadata[0].name : "null"
     tls_cakey_secret_key   = var.tls_ca != null ? "cakey" : "null"
+    tls_server_cert_secret = var.tls_server_cert_secret != null ? var.tls_server_cert_secret : "null"
 
     enable_sync_catalog           = jsonencode(var.enable_sync_catalog)
     sync_by_default               = var.sync_by_default
@@ -106,6 +107,7 @@ locals {
 
     connect_enable                = jsonencode(var.connect_enable)
     enable_connect_inject         = var.enable_connect_inject
+    connect_inject_replicas       = var.connect_inject_replicas
     connect_inject_by_default     = var.connect_inject_by_default
     connect_inject_affinity       = jsonencode(var.connect_inject_affinity)
     connect_inject_tolerations    = jsonencode(var.connect_inject_tolerations)
@@ -116,6 +118,7 @@ locals {
     connect_inject_allowed_namespaces = jsonencode(var.connect_inject_allowed_namespaces)
     connect_inject_denied_namespaces  = jsonencode(var.connect_inject_denied_namespaces)
     connect_inject_log_level          = var.connect_inject_log_level
+    connect_inject_failure_policy     = var.connect_inject_failure_policy
 
     connect_inject_sidecar_proxy_resources = yamlencode(var.connect_inject_sidecar_proxy_resources)
     connect_inject_init_resources          = yamlencode(var.connect_inject_init_resources)

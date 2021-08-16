@@ -85,7 +85,7 @@ locals {
       "-ec",
       <<-EOF
       echo "${base64encode(local.exporter_consul_template)}"  | base64 -d > /${local.exporter_volume}/consul_template.hcl \
-      && consul-k8s get-consul-client-ca \
+      && consul-k8s-control-plane get-consul-client-ca \
         -output-file=/${local.exporter_volume}/connect.pem \
         ${var.tls_ca != null ? "-ca-file=/${local.exporter_volume}/server.pem \\" : ""}
         -server-addr=consul-server.${var.chart_namespace}.svc \

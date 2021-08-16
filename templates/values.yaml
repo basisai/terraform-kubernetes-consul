@@ -337,6 +337,34 @@ server:
     # Manages license autoload. Required in Consul 1.10.0+, 1.9.7+ and 1.8.12+.
     enableLicenseAutoload: true
 
+  # A Kubernetes secret containing a certificate & key for the server agents to use
+  # for TLS communication within the Consul cluster. Cert needs to be provided with
+  # additional DNS name SANs so that it will work within the Kubernetes cluster:
+  #
+  # ```bash
+  # consul tls cert create -server -days=730 -domain=consul -ca=consul-agent-ca.pem \
+  #     -key=consul-agent-ca-key.pem -dc={{datacenter}} \
+  #     -additional-dnsname="{{fullname}}-server" \
+  #     -additional-dnsname="*.{{fullname}}-server" \
+  #     -additional-dnsname="*.{{fullname}}-server.{{namespace}}" \
+  #     -additional-dnsname="*.{{fullname}}-server.{{namespace}}.svc" \
+  #     -additional-dnsname="*.server.{{datacenter}}.{{domain}}" \
+  #     -additional-dnsname="server.{{datacenter}}.{{domain}}"
+  # ```
+  #
+  # If you have generated the
+  # server-cert yourself with the consul CLI, you could use the following command
+  # to create the secret in Kubernetes:
+  #
+  # ```bash
+  # kubectl create secret generic consul-server-cert \
+  #     --from-file='tls.crt=./dc1-server-consul-0.pem'
+  #     --from-file='tls.key=./dc1-server-consul-0-key.pem'
+  # ```
+  serverCert:
+    # The name of the Kubernetes secret.
+    secretName: ${tls_server_cert_secret}
+
   # Exposes the servers' gossip and RPC ports as hostPorts. To enable a client
   # agent outside of the k8s cluster to join the datacenter, you would need to
   # enable `server.exposeGossipAndRPCPorts`, `client.exposeGossipPorts`, and
@@ -1298,8 +1326,9 @@ syncCatalog:
   resources:
     ${indent(4, sync_resources)}
 
-  # Log verbosity level. One of "trace", "debug", "info", "warn", or "error".
-  logLevel: info
+  # Override global log verbosity level. One of "debug", "info", "warn", or "error".
+  # @type: string
+  logLevel: ""
 
   # Override the default interval to perform syncing operations creating Consul services.
   # @type: string
@@ -1323,6 +1352,9 @@ connectInject:
   # True if you want to enable connect injection. Set to "-" to inherit from
   # global.enabled.
   enabled: ${enable_connect_inject}
+
+  # The number of deployment replicas.
+  replicas: ${connect_inject_replicas}
 
   # Image for consul-k8s that contains the injector
   # @type: string
@@ -1368,7 +1400,7 @@ connectInject:
     defaultEnabled: "${connect_inject_metrics_default_enabled}"
     # Configures the Consul sidecar to run a merged metrics server
     # to combine and serve both Envoy and Connect service metrics.
-    # This feature is available only in Consul v1.10-alpha or greater.
+    # This feature is available only in Consul v1.10 or greater.
     defaultEnableMerging: ${connect_inject_default_enable_merging}
     # Configures the port at which the Consul sidecar will listen on to return
     # combined metrics. This port only needs to be changed if it conflicts with
@@ -1403,7 +1435,8 @@ connectInject:
   # @type: string
   imageConsul: null
 
-  # Log verbosity level. One of "debug", "info", "warn", or "error".
+  # Override global log verbosity level. One of "debug", "info", "warn", or "error".
+  # @type: string
   logLevel: ${connect_inject_log_level}
 
   serviceAccount:
@@ -1429,6 +1462,14 @@ connectInject:
     # limits:
     #   memory: "50Mi"
     #   cpu: "50m"
+
+  # Sets the failurePolicy for the mutating webhook. By default this will cause pods not part of the consul installation to fail scheduling while the webhook
+  # is offline. This prevents a pod from skipping mutation if the webhook were to be momentarily offline.
+  # Once the webhook is back online the pod will be scheduled.
+  # In some environments such as Kind this may have an undesirable effect as it may prevent volume provisioner pods from running
+  # which can lead to hangs. In these environments it is recommend to use "Ignore" instead.
+  # This setting can be safely disabled by setting to "Ignore".
+  failurePolicy: ${connect_inject_failure_policy}
 
   # Selector for restricting the webhook to only
   # specific namespaces. This should be set to a multiline string.
@@ -1598,6 +1639,7 @@ controller:
   replicas: ${controller_replicas}
 
   # Log verbosity level. One of "debug", "info", "warn", or "error".
+  # @type: string
   logLevel: ${controller_log_level}
 
   serviceAccount:
