@@ -848,7 +848,7 @@ variable "esm_chart_repository" {
 
 variable "esm_chart_version" {
   description = "ESM Chart version"
-  default     = "0.2.2"
+  default     = "0.3.0"
 }
 
 variable "esm_replica" {
