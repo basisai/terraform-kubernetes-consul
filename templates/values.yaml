@@ -185,7 +185,7 @@ global:
     # If true, the Helm chart will automatically manage ACL tokens and policies
     # for all Consul and consul-k8s components.
     # This requires Consul >= 1.4 and consul-k8s >= 0.14.0.
-    manageSystemACLs: false
+    manageSystemACLs: ${manage_system_acls}
 
     # A Kubernetes secret containing the bootstrap token to use for
     # creating policies and tokens for all Consul and consul-k8s components.
@@ -193,10 +193,11 @@ global:
     # initialize ACLs for the Consul clients and consul-k8s system components.
     # Requires consul-k8s >= 0.14.0.
     bootstrapToken:
-      # The name of the Kubernetes secret.
-      secretName: null
-      # The key of the Kubernetes secret.
-      secretKey: null
+      ${indent(6, acl_bootstrap_token)}
+      # # The name of the Kubernetes secret.
+      # secretName: null
+      # # The key of the Kubernetes secret.
+      # secretKey: null
 
     # If true, an ACL token will be created that can be used in secondary
     # datacenters for replication. This should only be set to true in the
@@ -205,7 +206,7 @@ global:
     # In secondary datacenters, the secret needs to be imported from the primary
     # datacenter and referenced via `global.acls.replicationToken`.
     # Requires consul-k8s >= 0.13.0.
-    createReplicationToken: false
+    createReplicationToken: ${create_replication_token}
 
     # replicationToken references a secret containing the replication ACL token.
     # This token will be used by secondary datacenters to perform ACL replication
@@ -213,10 +214,11 @@ global:
     # This value is ignored if `bootstrapToken` is also set.
     # Requires consul-k8s >= 0.13.0.
     replicationToken:
-      # The name of the Kubernetes secret.
-      secretName: null
-      # The key of the Kubernetes secret.
-      secretKey: null
+      ${indent(6, replication_token)}
+      # # The name of the Kubernetes secret.
+      # secretName: null
+      # # The key of the Kubernetes secret.
+      # secretKey: null
 
   # Configure federation.
   federation:
@@ -1279,10 +1281,11 @@ syncCatalog:
   # an ACL token for your Consul cluster which allows the sync process the correct
   # permissions. This is only needed if ACLs are enabled on the Consul cluster.
   aclSyncToken:
-    # The name of the Kubernetes secret.
-    secretName: null
-    # The key of the Kubernetes secret.
-    secretKey: null
+    ${indent(4, sync_acl_token)}
+    # # The name of the Kubernetes secret.
+    # secretName: null
+    # # The key of the Kubernetes secret.
+    # secretKey: null
 
   # This value defines `nodeSelector` (https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#nodeselector)
   # labels for catalog sync pod assignment, formatted as a multi-line string.
@@ -1574,11 +1577,11 @@ connectInject:
   # and https://www.consul.io/docs/acl/auth-methods/kubernetes.html#trusted-identity-attributes
   # for more details.
   # Requires Consul >= v1.5 and consul-k8s >= v0.8.0.
-  aclBindingRuleSelector: "serviceaccount.name!=default"
+  aclBindingRuleSelector: ${connect_inject_acl_binding_rule_selector}
 
   # If you are not using global.acls.manageSystemACLs and instead manually setting up an
   # auth method for Connect inject, set this to the name of your auth method.
-  overrideAuthMethodName: ""
+  overrideAuthMethodName: ${connect_inject_override_auth_method_name}
 
   # Refers to a Kubernetes secret that you have created that contains
   # an ACL token for your Consul cluster which allows the Connect injector the correct
@@ -1588,12 +1591,13 @@ connectInject:
   # This token needs to have `operator = "write"` privileges to be able to
   # create Consul namespaces.
   aclInjectToken:
-    # The name of the Kubernetes secret.
-    # @type: string
-    secretName: null
-    # The key of the Kubernetes secret.
-    # @type: string
-    secretKey: null
+    ${indent(4, connect_inject_acl_token)}
+    # # The name of the Kubernetes secret.
+    # # @type: string
+    # secretName: null
+    # # The key of the Kubernetes secret.
+    # # @type: string
+    # secretKey: null
 
   sidecarProxy:
     # Set default resources for sidecar proxy. If null, that resource won't
@@ -1698,12 +1702,13 @@ controller:
   # ```
   # If running Consul Enterprise, talk to your account manager for assistance.
   aclToken:
-    # The name of the Kubernetes secret.
-    # @type: string
-    secretName: null
-    # The key of the Kubernetes secret.
-    # @type: string
-    secretKey: null
+    ${indent(4, controller_acl_token)}
+    # # The name of the Kubernetes secret.
+    # # @type: string
+    # secretName: null
+    # # The key of the Kubernetes secret.
+    # # @type: string
+    # secretKey: null
 
 
 # Mesh Gateways enable Consul Connect to work across Consul datacenters.

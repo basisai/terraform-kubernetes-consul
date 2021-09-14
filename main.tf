@@ -53,6 +53,17 @@ locals {
 
     server_update_partition = var.server_update_partition
 
+    manage_system_acls = var.manage_system_acls
+    acl_bootstrap_token = yamlencode({
+      secretName = var.acl_bootstrap_token.secret_name
+      secretKey  = var.acl_bootstrap_token.secret_key
+    })
+    create_replication_token = var.create_replication_token
+    replication_token = yamlencode({
+      secretName = var.replication_token.secret_name
+      secretKey  = var.replication_token.secret_key
+    })
+
     client_enabled        = jsonencode(var.client_enabled)
     client_grpc           = var.client_grpc
     client_resources      = yamlencode(var.client_resources)
@@ -95,6 +106,11 @@ locals {
     sync_tolerations              = jsonencode(var.sync_tolerations)
     sync_resources                = yamlencode(var.sync_resources)
     sync_priority_class           = var.sync_priority_class
+    sync_acl_token = yamlencode({
+      secretName = var.sync_acl_token.secret_name
+      secretKey  = var.sync_acl_token.secret_key
+    })
+
 
     sync_service_account_annotations = jsonencode(var.sync_service_account_annotations)
 
@@ -123,6 +139,13 @@ locals {
     consul_sidecar_container_resources     = yamlencode(var.consul_sidecar_container_resources)
     envoy_extra_args                       = var.envoy_extra_args != null ? jsonencode(var.envoy_extra_args) : "null"
 
+    connect_inject_acl_binding_rule_selector = var.connect_inject_acl_binding_rule_selector
+    connect_inject_override_auth_method_name = jsonencode(var.connect_inject_override_auth_method_name)
+    connect_inject_acl_token = yamlencode({
+      secretName = var.connect_inject_acl_token.secret_name
+      secretKey  = var.connect_inject_acl_token.secret_key
+    })
+
     controller_enable           = var.controller_enable
     controller_replicas         = var.controller_replicas
     controller_log_level        = var.controller_log_level
@@ -131,6 +154,10 @@ locals {
     controller_node_tolerations = var.controller_node_tolerations != null ? jsonencode(var.controller_node_tolerations) : "null"
     controller_node_affinity    = var.controller_node_affinity != null ? jsonencode(var.controller_node_affinity) : "null"
     controller_priority_class   = var.controller_priority_class
+    controller_acl_token = yamlencode({
+      secretName = var.controller_acl_token.secret_name
+      secretKey  = var.controller_acl_token.secret_key
+    })
 
     controller_service_account_annotations = jsonencode(var.controller_service_account_annotations)
 
