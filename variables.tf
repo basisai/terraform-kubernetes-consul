@@ -413,6 +413,12 @@ variable "consul_recursors" {
   default     = []
 }
 
+variable "additional_chart_values" {
+  description = "Additional values for the Consul Helm Chart in YAML"
+  type        = list(string)
+  default     = []
+}
+
 ###########################
 # Consul Connect
 ###########################
