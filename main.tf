@@ -8,9 +8,7 @@ resource "helm_release" "consul" {
   max_history = var.max_history
   timeout     = var.chart_timeout
 
-  values = [
-    local.chart_values,
-  ]
+  values = concat([local.chart_values], var.additional_chart_values)
 }
 
 # To allow for easier viewing of diff for Consul Chart values
