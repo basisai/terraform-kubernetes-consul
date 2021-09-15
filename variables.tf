@@ -341,6 +341,18 @@ variable "sync_priority_class" {
   default     = ""
 }
 
+variable "sync_acl_token" {
+  description = "Secret containing ACL token if ACL is enabled and manage_system_acls is not enabled"
+  type = object({
+    secret_name = string
+    secret_key  = string
+  })
+  default = {
+    secret_name = null
+    secret_key  = null
+  }
+}
+
 variable "enable_ui" {
   description = "Enable Consul UI"
   default     = false
@@ -417,6 +429,45 @@ variable "additional_chart_values" {
   description = "Additional values for the Consul Helm Chart in YAML"
   type        = list(string)
   default     = []
+}
+
+###########################
+# ACL
+###########################
+variable "manage_system_acls" {
+  description = "Manager ACL Tokens for Consul and consul-k8s components"
+  type        = bool
+  default     = false
+}
+
+variable "acl_bootstrap_token" {
+  description = "Use an existing bootstrap token and the consul-k8s will not bootstrap anything"
+  type = object({
+    secret_name = string
+    secret_key  = string
+  })
+  default = {
+    secret_name = null
+    secret_key  = null
+  }
+}
+
+variable "create_replication_token" {
+  description = "If true, an ACL token will be created that can be used in secondary datacenters for replication. This should only be set to true in the primary datacenter since the replication token must be created from that datacenter. In secondary datacenters, the secret needs to be imported from the primary datacenter"
+  type        = bool
+  default     = false
+}
+
+variable "replication_token" {
+  description = "A secret containing the replication ACL token."
+  type = object({
+    secret_name = string
+    secret_key  = string
+  })
+  default = {
+    secret_name = null
+    secret_key  = null
+  }
 }
 
 ###########################
@@ -558,6 +609,41 @@ variable "envoy_extra_args" {
   default     = null
 }
 
+variable "connect_inject_acl_binding_rule_selector" {
+  description = <<-EOF
+    Query that defines which Service Accounts
+    can authenticate to Consul and receive an ACL token during Connect injection.
+    The default setting, i.e. serviceaccount.name!=default, prevents the
+    'default' Service Account from logging in.
+    If set to an empty string all service accounts can log in.
+    This only has effect if ACLs are enabled.
+
+    See https://www.consul.io/docs/acl/acl-auth-methods.html#binding-rules
+    and https://www.consul.io/docs/acl/auth-methods/kubernetes.html#trusted-identity-attributes
+    for more details.
+    EOF
+  type        = string
+  default     = "serviceaccount.name!=default"
+}
+
+variable "connect_inject_override_auth_method_name" {
+  description = "If you are not using global.acls.manageSystemACLs and instead manually setting up an auth method for Connect inject, set this to the name of your auth method."
+  type        = string
+  default     = ""
+}
+
+variable "connect_inject_acl_token" {
+  description = "Secret containing ACL token if ACL is enabled and manage_system_acls is not enabled"
+  type = object({
+    secret_name = string
+    secret_key  = string
+  })
+  default = {
+    secret_name = null
+    secret_key  = null
+  }
+}
+
 ###########################
 # Transparent Proxy
 ###########################
@@ -630,6 +716,18 @@ variable "controller_service_account_annotations" {
   description = "YAML string with annotations for CRD Controller service account"
   type        = string
   default     = ""
+}
+
+variable "controller_acl_token" {
+  description = "Secret containing ACL token if ACL is enabled and manage_system_acls is not enabled"
+  type = object({
+    secret_name = string
+    secret_key  = string
+  })
+  default = {
+    secret_name = null
+    secret_key  = null
+  }
 }
 
 ###########################
