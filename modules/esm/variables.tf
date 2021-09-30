@@ -86,8 +86,8 @@ variable "esm_image" {
   description = "Docker image for ESM"
   type        = string
   default     = "hashicorp/consul-esm"
-
 }
+
 variable "esm_tag" {
   description = "Docker Image tag for ESM"
   type        = string
