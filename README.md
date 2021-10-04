@@ -175,9 +175,9 @@ You can do so by running `kubectl get configmap/coredns -n kube-system -o yaml`.
 | <a name="input_connect_inject_tolerations"></a> [connect\_inject\_tolerations](#input\_connect\_inject\_tolerations) | Template string for Connect Inject Tolerations | `string` | `""` | no |
 | <a name="input_consul_domain"></a> [consul\_domain](#input\_consul\_domain) | Top level Consul domain for DNS queries | `string` | `"consul"` | no |
 | <a name="input_consul_image_name"></a> [consul\_image\_name](#input\_consul\_image\_name) | Docker Image of Consul to run | `string` | `"consul"` | no |
-| <a name="input_consul_image_tag"></a> [consul\_image\_tag](#input\_consul\_image\_tag) | Docker image tag of Consul to run | `string` | `"1.10.0"` | no |
+| <a name="input_consul_image_tag"></a> [consul\_image\_tag](#input\_consul\_image\_tag) | Docker image tag of Consul to run | `string` | `"1.10.2"` | no |
 | <a name="input_consul_k8s_image"></a> [consul\_k8s\_image](#input\_consul\_k8s\_image) | Docker image of the consul-k8s binary to run | `string` | `"hashicorp/consul-k8s-control-plane"` | no |
-| <a name="input_consul_k8s_tag"></a> [consul\_k8s\_tag](#input\_consul\_k8s\_tag) | Image tag of the consul-k8s binary to run | `string` | `"0.33.0"` | no |
+| <a name="input_consul_k8s_tag"></a> [consul\_k8s\_tag](#input\_consul\_k8s\_tag) | Image tag of the consul-k8s binary to run | `string` | `"0.34.1"` | no |
 | <a name="input_consul_raw_values"></a> [consul\_raw\_values](#input\_consul\_raw\_values) | Create a `null_resource` with the raw values passed in to render the YAML values file. Useful for observing diffs. | `bool` | `true` | no |
 | <a name="input_consul_recursors"></a> [consul\_recursors](#input\_consul\_recursors) | A list of addresses of upstream DNS servers that are used to recursively resolve DNS queries. | `list(string)` | `[]` | no |
 | <a name="input_consul_sidecar_container_resources"></a> [consul\_sidecar\_container\_resources](#input\_consul\_sidecar\_container\_resources) | Resource settings for consul -sidecar containers.<br>The consul  sidecar ensures the Consul services are always registered with<br>their local consul clients and is used by the ingress/terminating/mesh gateways<br>as well as with every connect-injected service. | `map` | <pre>{<br>  "limits": {<br>    "cpu": "20m",<br>    "memory": "50Mi"<br>  },<br>  "requests": {<br>    "cpu": "20m",<br>    "memory": "50Mi"<br>  }<br>}</pre> | no |
@@ -253,7 +253,7 @@ You can do so by running `kubectl get configmap/coredns -n kube-system -o yaml`.
 | <a name="input_exporter_tolerations"></a> [exporter\_tolerations](#input\_exporter\_tolerations) | Tolerations for Consul Exporter | `list` | `[]` | no |
 | <a name="input_fullname_override"></a> [fullname\_override](#input\_fullname\_override) | Fullname Override of Helm resources | `string` | `""` | no |
 | <a name="input_gossip_encryption_key"></a> [gossip\_encryption\_key](#input\_gossip\_encryption\_key) | 32 Bytes Base64 Encoded Consul Gossip Encryption Key. Set to `null` to disable | `any` | `null` | no |
-| <a name="input_image_envoy"></a> [image\_envoy](#input\_image\_envoy) | Image and tag for Envoy Docker image to use for sidecar proxies, mesh, terminating and ingress gateways | `string` | `"envoyproxy/envoy-alpine:v1.18.3"` | no |
+| <a name="input_image_envoy"></a> [image\_envoy](#input\_image\_envoy) | Image and tag for Envoy Docker image to use for sidecar proxies, mesh, terminating and ingress gateways | `string` | `"envoyproxy/envoy-alpine:v1.18.4"` | no |
 | <a name="input_log_json_enable"></a> [log\_json\_enable](#input\_log\_json\_enable) | Enable all component logs to be output in JSON format | `bool` | `false` | no |
 | <a name="input_manage_system_acls"></a> [manage\_system\_acls](#input\_manage\_system\_acls) | Manager ACL Tokens for Consul and consul-k8s components | `bool` | `false` | no |
 | <a name="input_max_history"></a> [max\_history](#input\_max\_history) | Max History for Helm | `number` | `20` | no |

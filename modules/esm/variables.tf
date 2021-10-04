@@ -25,7 +25,7 @@ variable "consul_k8s_image" {
 variable "consul_k8s_tag" {
   description = "Image tag of the consul-k8s binary to run"
   type        = string
-  default     = "0.33.0"
+  default     = "0.34.1"
 }
 
 variable "esm_server_address" {

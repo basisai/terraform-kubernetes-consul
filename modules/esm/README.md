@@ -29,7 +29,7 @@ No modules.
 |------|-------------|------|---------|:--------:|
 | <a name="input_chart_namespace"></a> [chart\_namespace](#input\_chart\_namespace) | Namespace to install the chart into | `string` | `"default"` | no |
 | <a name="input_consul_k8s_image"></a> [consul\_k8s\_image](#input\_consul\_k8s\_image) | Docker image of the consul-k8s binary to run | `string` | `"hashicorp/consul-k8s-control-plane"` | no |
-| <a name="input_consul_k8s_tag"></a> [consul\_k8s\_tag](#input\_consul\_k8s\_tag) | Image tag of the consul-k8s binary to run | `string` | `"0.33.0"` | no |
+| <a name="input_consul_k8s_tag"></a> [consul\_k8s\_tag](#input\_consul\_k8s\_tag) | Image tag of the consul-k8s binary to run | `string` | `"0.34.1"` | no |
 | <a name="input_consul_template_image"></a> [consul\_template\_image](#input\_consul\_template\_image) | Image for Consul Template | `string` | `"hashicorp/consul-template:0.26.0"` | no |
 | <a name="input_esm_affinity"></a> [esm\_affinity](#input\_esm\_affinity) | Affinity for ESM | `any` | `{}` | no |
 | <a name="input_esm_chart_name"></a> [esm\_chart\_name](#input\_esm\_chart\_name) | Name of the ESM Chart name | `string` | `"consul-esm"` | no |
