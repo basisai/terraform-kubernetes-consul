@@ -4,13 +4,10 @@ variable "tls_enabled" {
   default     = false
 }
 
-variable "tls_ca" {
+variable "tls_cacert" {
   description = "Self generated CA for Consul Server TLS. Values should be PEM encoded"
-  type = object({
-    cert = string,
-    key  = string,
-  })
-  default = null
+  type        = string
+  default     = null
 }
 
 variable "tls_enable_auto_encrypt" {

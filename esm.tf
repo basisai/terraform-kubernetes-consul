@@ -27,7 +27,7 @@ module "esm" {
   esm_server_address      = coalesce(var.esm_server_address, "${coalesce(var.name, var.release_name)}-server.${var.chart_namespace}.svc")
   esm_server_port         = var.esm_server_port
   tls_enabled             = var.tls_enabled
-  tls_ca                  = var.tls_ca
+  tls_cacert              = var.tls_ca.cert
   tls_enable_auto_encrypt = var.tls_enable_auto_encrypt
   consul_k8s_image        = var.consul_k8s_image
 

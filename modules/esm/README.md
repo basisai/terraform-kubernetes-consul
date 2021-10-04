@@ -4,7 +4,7 @@
 
 | Name | Version |
 |------|---------|
-| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 0.14 |
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 0.15 |
 | <a name="requirement_helm"></a> [helm](#requirement\_helm) | >= 2.0 |
 
 ## Providers
@@ -60,7 +60,7 @@ No modules.
 | <a name="input_esm_tolerations"></a> [esm\_tolerations](#input\_esm\_tolerations) | Toleration for ESM | `any` | `[]` | no |
 | <a name="input_esm_use_node_agent"></a> [esm\_use\_node\_agent](#input\_esm\_use\_node\_agent) | Use Consul agent Daemonset | `bool` | `true` | no |
 | <a name="input_max_history"></a> [max\_history](#input\_max\_history) | Max History for Helm | `number` | `20` | no |
-| <a name="input_tls_ca"></a> [tls\_ca](#input\_tls\_ca) | Self generated CA for Consul Server TLS. Values should be PEM encoded | <pre>object({<br>    cert = string,<br>    key  = string,<br>  })</pre> | `null` | no |
+| <a name="input_tls_cacert"></a> [tls\_cacert](#input\_tls\_cacert) | Self generated CA for Consul Server TLS. Values should be PEM encoded | `string` | `null` | no |
 | <a name="input_tls_enable_auto_encrypt"></a> [tls\_enable\_auto\_encrypt](#input\_tls\_enable\_auto\_encrypt) | Enable auto encrypt. Uses the connect CA to distribute certificates to clients | `bool` | `false` | no |
 | <a name="input_tls_enabled"></a> [tls\_enabled](#input\_tls\_enabled) | Enable TLS for the Consul cluster | `bool` | `false` | no |
 
