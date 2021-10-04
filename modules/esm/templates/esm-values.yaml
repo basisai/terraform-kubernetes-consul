@@ -29,6 +29,8 @@ affinity: ${affinity}
 
 env: ${env}
 
+podAnnotations: ${pod_annotations}
+
 # The sysctl below is needed for UDP Ping to work
 # See https://github.com/tatsushid/go-fastping/issues/25#issuecomment-236203705
 # It is not enabled by default because it is an "unsafe" sysctl
