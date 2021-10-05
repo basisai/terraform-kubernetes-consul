@@ -29,6 +29,49 @@ global:
   # Consul into Kubernetes will have, e.g. `service-name.service.consul`.
   domain: ${consul_domain}
 
+  # [Enterprise Only] Enabling `adminPartitions` allows creation of Admin Partitions in Kubernetes clusters.
+  # It additionally indicates that you are running Consul Enterprise v1.11+ with a valid Consul Enterprise
+  # license. Admin partitions enables deploying services across partitions, while sharing
+  # a set of Consul servers.
+  adminPartitions:
+    # If true, the Helm chart will enable Admin Partitions for the cluster. The clients in the server cluster
+    # must be installed in the default partition. Creation of Admin Partitions is only supported during installation.
+    # Admin Partitions cannot be installed via a Helm upgrade operation. Only Helm installs are supported.
+    enabled: false
+    # The name of the Admin Partition. The partition name cannot be modified once the partition has been installed.
+    # Changing the partition name would require an un-install and a re-install with the updated name.
+    # Must be "default" in the server cluster ie the Kubernetes cluster that the Consul server pods are deployed onto.
+    name: "default"
+    # Partition service properties.
+    service:
+      type: LoadBalancer
+      # Optionally set the nodePort value of the partition service if using a NodePort service.
+      # If not set and using a NodePort service, Kubernetes will automatically assign
+      # a port.
+      nodePort:
+
+        # RPC node port
+        # @type: integer
+        rpc: null
+
+        # Serf node port
+        # @type: integer
+        serf: null
+
+        # HTTPS node port
+        # @type: integer
+        https: null
+
+      # Annotations to apply to the partition service.
+      #
+      # ```yaml
+      # annotations: |
+      #   "annotation-key": "annotation-value"
+      # ```
+      #
+      # @type: string
+      annotations: null
+
   # The name (and tag) of the Consul Docker image for clients and servers.
   # This can be overridden per component. This should be pinned to a specific
   # version tag, otherwise you may inadvertently upgrade your Consul version.
@@ -42,7 +85,7 @@ global:
   image: ${image}
 
   # Array of objects containing image pull secret names that will be applied to each service account.
-  # This can be used to reference image pull secrets if using a custom consul or consul-k8s Docker image.
+  # This can be used to reference image pull secrets if using a custom consul or consul-k8s-control-plane-control-plane Docker image.
   # See https://kubernetes.io/docs/concepts/containers/images/#using-a-private-registry for reference.
   #
   # Example:
@@ -54,9 +97,10 @@ global:
   # @type: array<map>
   imagePullSecrets: []
 
-  # The name (and tag) of the consul-k8s (https://github.com/hashicorp/consul-k8s)
-  # Docker image that is used for functionality such the catalog sync.
+  # The name (and tag) of the consul-k8s-control-plane-control-plane Docker
+  # image that is used for functionality such as catalog sync.
   # This can be overridden per component.
+  # @default: hashicorp/consul-k8s-control-plane-control-plane:<latest version>
   imageK8S: ${image_k8s}
 
   # The name of the datacenter that the agents should
@@ -105,16 +149,16 @@ global:
 
   # Enables TLS (https://learn.hashicorp.com/tutorials/consul/tls-encryption-secure)
   # across the cluster to verify authenticity of the Consul servers and clients.
-  # Requires Consul v1.4.1+ and consul-k8s v0.16.2+
+  # Requires Consul v1.4.1+.
   tls:
     # If true, the Helm chart will enable TLS for Consul
-    # servers and clients and all consul-k8s components, as well as generate certificate
+    # servers and clients and all consul-k8s-control-plane components, as well as generate certificate
     # authority (optional) and server and client certificates.
     enabled: ${tls_enabled}
 
     # If true, turns on the auto-encrypt feature on clients and servers.
-    # It also switches consul-k8s components to retrieve the CA from the servers
-    # via the API. Requires Consul 1.7.1+ and consul-k8s 0.13.0
+    # It also switches consul-k8s-control-plane components to retrieve the CA from the servers
+    # via the API. Requires Consul 1.7.1+ and consul-k8s-control-plane 0.13.0
     enableAutoEncrypt: ${tls_enable_auto_encrypt}
 
     # A list of additional DNS names to set as Subject Alternative Names (SANs)
@@ -174,7 +218,7 @@ global:
   # [Enterprise Only] `enableConsulNamespaces` indicates that you are running
   # Consul Enterprise v1.7+ with a valid Consul Enterprise license and would
   # like to make use of configuration beyond registering everything into
-  # the `default` Consul namespace. Requires consul-k8s v0.12+. Additional configuration
+  # the `default` Consul namespace. Requires consul-k8s-control-plane v0.12+. Additional configuration
   # options are found in the `consulNamespaces` section of both the catalog sync
   # and connect injector.
   enableConsulNamespaces: false
@@ -183,15 +227,15 @@ global:
   acls:
 
     # If true, the Helm chart will automatically manage ACL tokens and policies
-    # for all Consul and consul-k8s components.
-    # This requires Consul >= 1.4 and consul-k8s >= 0.14.0.
+    # for all Consul and consul-k8s-control-plane components.
+    # This requires Consul >= 1.4 and consul-k8s-control-plane >= 0.14.0.
     manageSystemACLs: ${manage_system_acls}
 
     # A Kubernetes secret containing the bootstrap token to use for
-    # creating policies and tokens for all Consul and consul-k8s components.
+    # creating policies and tokens for all Consul and consul-k8s-control-plane components.
     # If set, we will skip ACL bootstrapping of the servers and will only
-    # initialize ACLs for the Consul clients and consul-k8s system components.
-    # Requires consul-k8s >= 0.14.0.
+    # initialize ACLs for the Consul clients and consul-k8s-control-plane system components.
+    # Requires consul-k8s-control-plane >= 0.14.0.
     bootstrapToken:
       ${indent(6, acl_bootstrap_token)}
       # # The name of the Kubernetes secret.
@@ -205,14 +249,14 @@ global:
     # datacenter.
     # In secondary datacenters, the secret needs to be imported from the primary
     # datacenter and referenced via `global.acls.replicationToken`.
-    # Requires consul-k8s >= 0.13.0.
+    # Requires consul-k8s-control-plane >= 0.13.0.
     createReplicationToken: ${create_replication_token}
 
     # replicationToken references a secret containing the replication ACL token.
     # This token will be used by secondary datacenters to perform ACL replication
     # and create ACL tokens and policies.
     # This value is ignored if `bootstrapToken` is also set.
-    # Requires consul-k8s >= 0.13.0.
+    # Requires consul-k8s-control-plane >= 0.13.0.
     replicationToken:
       ${indent(6, replication_token)}
       # # The name of the Kubernetes secret.
@@ -235,7 +279,7 @@ global:
     # and authenticate with this datacenter. This should only be set to true
     # in your primary datacenter. The secret name is
     # `<global.name>-federation` (if setting `global.name`), otherwise
-    # `<helm-release-name>-consul-federation`. Requires consul-k8s 0.15.0+.
+    # `<helm-release-name>-consul-federation`. Requires consul-k8s-control-plane 0.15.0+.
     createFederationSecret: false
 
   # Configures metrics for Consul service mesh
@@ -461,6 +505,18 @@ server:
     # runAsUser: 100
     # fsGroup: 1000
 
+  # The container securityContext for each container in the server pods.  In
+  # addition to the Pod's SecurityContext this can
+  # set the capabilities of processes running in the container and ensure the
+  # root file systems in the container is read-only.
+  # @type: map
+  # @recurse: true
+  containerSecurityContext:
+    # The consul server agent container
+    # @type: map
+    # @recurse: false
+    server: null
+
   # This value is used to carefully
   # control a rolling update of Consul server agents. This value specifies the
   # partition (https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#partitions)
@@ -644,8 +700,8 @@ server:
 
 # Configuration for Consul servers when the servers are running outside of Kubernetes.
 # When running external servers, configuring these values is recommended
-# if setting `global.tls.enableAutoEncrypt` to true (requires consul-k8s >= 0.13.0)
-# or `global.acls.manageSystemACLs` to true (requires consul-k8s >= 0.14.0).
+# if setting `global.tls.enableAutoEncrypt` to true (requires consul-k8s-control-plane >= 0.13.0)
+# or `global.acls.manageSystemACLs` to true (requires consul-k8s-control-plane >= 0.14.0).
 externalServers:
   # If true, the Helm chart will be configured to talk to the external servers.
   # If setting this to true, you must also set `server.enabled` to false.
@@ -669,10 +725,10 @@ externalServers:
   # @type: string
   tlsServerName: null
 
-  # If true, consul-k8s components will ignore the CA set in
+  # If true, consul-k8s-control-plane components will ignore the CA set in
   # `global.tls.caCert` when making HTTPS calls to Consul servers and
-  # will instead use the consul-k8s image's system CAs for TLS verification.
-  # If false, consul-k8s components will use `global.tls.caCert` when
+  # will instead use the consul-k8s-control-plane image's system CAs for TLS verification.
+  # If false, consul-k8s-control-plane components will use `global.tls.caCert` when
   # making HTTPS calls to Consul servers.
   # **NOTE:** This does not affect Consul's internal RPC communication which will
   # always use `global.tls.caCert`.
@@ -682,7 +738,7 @@ externalServers:
   # `connectInject.enabled` to true, set `k8sAuthMethodHost` to the address of the Kubernetes API server.
   # This address must be reachable from the Consul servers.
   # Please see the Kubernetes Auth Method documentation (https://consul.io/docs/acl/auth-methods/kubernetes).
-  # Requires consul-k8s >= 0.14.0.
+  # Requires consul-k8s-control-plane >= 0.14.0.
   #
   # You could retrieve this value from your `kubeconfig` by running:
   #
@@ -777,6 +833,26 @@ client:
     # runAsGroup: 1000
     # runAsUser: 100
     # fsGroup: 1000
+
+  # The container securityContext for each container in the client pods.  In
+  # addition to the Pod's SecurityContext this can
+  # set the capabilities of processes running in the container and ensure the
+  # root file systems in the container is read-only.
+  # @type: map
+  # @recurse: true
+  containerSecurityContext:
+    # The consul client agent container
+    # @type: map
+    # @recurse: false
+    client: null
+    # The acl-init initContainer
+    # @type: map
+    # @recurse: false
+    aclInit: null
+    # The tls-init initContainer
+    # @type: map
+    # @recurse: false
+    tlsInit: null
 
   # A raw string of extra JSON configuration (https://consul.io/docs/agent/options) for Consul
   # clients. This will be saved as-is into a ConfigMap that is read by the Consul
@@ -1045,6 +1121,15 @@ ui:
     # @type: string
     type: ${ui_service_type}
 
+    # Set the port value of the UI service.
+    port:
+
+      # HTTP port.
+      http: 80
+
+      # HTTPS port.
+      https: 443
+
     # Optionally set the nodePort value of the ui service if using a NodePort service.
     # If not set and using a NodePort service, Kubernetes will automatically assign
     # a port.
@@ -1154,7 +1239,7 @@ syncCatalog:
   # global.enabled.
   enabled: ${enable_sync_catalog}
 
-  # The name of the Docker image (including any tag) for consul-k8s
+  # The name of the Docker image (including any tag) for consul-k8s-control-plane
   # to run the sync program.
   # @type: string
   image: null
@@ -1194,14 +1279,14 @@ syncCatalog:
   # To deny all namespaces, set this to `[]`.
   #
   # Note: `k8sDenyNamespaces` takes precedence over values defined here.
-  # Requires consul-k8s v0.12+
+  # Requires consul-k8s-control-plane v0.12+
   # @type: array<string>
   k8sAllowNamespaces: ["*"]
 
   # List of k8s namespaces that should not have their
   # services synced. This list takes precedence over `k8sAllowNamespaces`.
   # `*` is not supported because then nothing would be allowed to sync.
-  # Requires consul-k8s v0.12+.
+  # Requires consul-k8s-control-plane v0.12+.
   #
   # For example, if `k8sAllowNamespaces` is `["*"]` and `k8sDenyNamespaces` is
   # `["namespace1", "namespace2"]`, then all k8s namespaces besides `namespace1`
@@ -1210,7 +1295,7 @@ syncCatalog:
   k8sDenyNamespaces: ["kube-system", "kube-public"]
 
   # [Enterprise Only] These settings manage the catalog sync's interaction with
-  # Consul namespaces (requires consul-ent v1.7+ and consul-k8s v0.12+).
+  # Consul namespaces (requires consul-ent v1.7+ and consul-k8s-control-plane v0.12+).
   # Also, `global.enableConsulNamespaces` must be true.
   consulNamespaces:
     # Name of the Consul namespace to register all
@@ -1359,7 +1444,7 @@ connectInject:
   # The number of deployment replicas.
   replicas: ${connect_inject_replicas}
 
-  # Image for consul-k8s that contains the injector
+  # Image for consul-k8s-control-plane that contains the injector
   # @type: string
   image: null
 
@@ -1371,7 +1456,7 @@ connectInject:
   default: ${connect_inject_by_default}
 
   # Configures Transparent Proxy for Consul Service mesh services.
-  # Using this feature requires Consul 1.10.0-beta1+ and consul-k8s 0.26.0-beta1+.
+  # Using this feature requires Consul 1.10.0-beta1+ and consul-k8s-control-plane 0.26.0-beta1+.
   transparentProxy:
     # If true, then all Consul Service mesh will run with transparent proxy enabled by default,
     # i.e. we enforce that all traffic within the pod will go through the proxy.
@@ -1503,7 +1588,7 @@ connectInject:
   # Note: `k8sDenyNamespaces` takes precedence over values defined here and
   # `namespaceSelector` takes precedence over both since it is applied first.
   # `kube-system` and `kube-public` are never injected, even if included here.
-  # Requires consul-k8s v0.12+
+  # Requires consul-k8s-control-plane v0.12+
   # @type: array<string>
   k8sAllowNamespaces: ${connect_inject_allowed_namespaces}
 
@@ -1517,12 +1602,12 @@ connectInject:
   #
   # Note: `namespaceSelector` takes precedence over this since it is applied first.
   # `kube-system` and `kube-public` are never injected.
-  # Requires consul-k8s v0.12+.
+  # Requires consul-k8s-control-plane v0.12+.
   # @type: array<string>
   k8sDenyNamespaces: ${connect_inject_denied_namespaces}
 
   # [Enterprise Only] These settings manage the connect injector's interaction with
-  # Consul namespaces (requires consul-ent v1.7+ and consul-k8s v0.12+).
+  # Consul namespaces (requires consul-ent v1.7+ and consul-k8s-control-plane v0.12+).
   # Also, `global.enableConsulNamespaces` must be true.
   consulNamespaces:
     # Name of the Consul namespace to register all
@@ -1576,7 +1661,7 @@ connectInject:
   # See https://www.consul.io/docs/acl/acl-auth-methods.html#binding-rules
   # and https://www.consul.io/docs/acl/auth-methods/kubernetes.html#trusted-identity-attributes
   # for more details.
-  # Requires Consul >= v1.5 and consul-k8s >= v0.8.0.
+  # Requires Consul >= v1.5 and consul-k8s-control-plane >= v0.8.0.
   aclBindingRuleSelector: ${connect_inject_acl_binding_rule_selector}
 
   # If you are not using global.acls.manageSystemACLs and instead manually setting up an
@@ -1716,7 +1801,7 @@ meshGateway:
   # If mesh gateways are enabled, a Deployment will be created that runs
   # gateways and Consul Connect will be configured to use gateways.
   # See https://www.consul.io/docs/connect/mesh_gateway.html
-  # Requirements: consul >= 1.6.0 and consul-k8s >= 0.9.0 if using
+  # Requirements: consul >= 1.6.0 and consul-k8s-control-plane >= 0.9.0 if using
   # global.acls.manageSystemACLs.
   enabled: false
 
@@ -1893,8 +1978,8 @@ meshGateway:
 # specific gateway with the exception of annotations. Annotations will
 # include both the default annotations and any additional ones defined
 # for a specific gateway.
-# Requirements: consul >= 1.8.0 and consul-k8s >= 0.16.0 if using
-# global.acls.manageSystemACLs and consul-k8s >= 0.10.0 if not.
+# Requirements: consul >= 1.8.0 and consul-k8s-control-plane >= 0.16.0 if using
+# global.acls.manageSystemACLs and consul-k8s-control-plane >= 0.10.0 if not.
 ingressGateways:
   # Enable ingress gateway deployment. Requires `connectInject.enabled=true`
   # and `client.enabled=true`.
@@ -2032,8 +2117,8 @@ ingressGateways:
 # specific gateway with the exception of annotations. Annotations will
 # include both the default annotations and any additional ones defined
 # for a specific gateway.
-# Requirements: consul >= 1.8.0 and consul-k8s >= 0.16.0 if using
-# global.acls.manageSystemACLs and consul-k8s >= 0.10.0 if not.
+# Requirements: consul >= 1.8.0 and consul-k8s-control-plane >= 0.16.0 if using
+# global.acls.manageSystemACLs and consul-k8s-control-plane >= 0.10.0 if not.
 terminatingGateways:
   # Enable terminating gateway deployment. Requires `connectInject.enabled=true`
   # and `client.enabled=true`.
@@ -2146,6 +2231,16 @@ terminatingGateways:
   # @type: array<map>
   gateways:
     ${indent(4, terminating_gateways)}
+
+# Configuration settings for the webhook-cert-manager
+# `webhook-cert-manager` ensures that cert bundles are up to date for the mutating webhook.
+webhookCertManager:
+
+  # Toleration Settings
+  # This should be a multi-line string matching the Toleration array
+  # in a PodSpec.
+  # @type: string
+  tolerations: null
 
 # Configures a demo Prometheus installation.
 prometheus:

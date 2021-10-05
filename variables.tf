@@ -55,7 +55,7 @@ variable "consul_image_name" {
 
 variable "consul_image_tag" {
   description = "Docker image tag of Consul to run"
-  default     = "1.10.0"
+  default     = "1.10.2"
 }
 
 variable "consul_k8s_image" {
@@ -65,12 +65,12 @@ variable "consul_k8s_image" {
 
 variable "consul_k8s_tag" {
   description = "Image tag of the consul-k8s binary to run"
-  default     = "0.33.0"
+  default     = "0.34.1"
 }
 
 variable "image_envoy" {
   description = "Image and tag for Envoy Docker image to use for sidecar proxies, mesh, terminating and ingress gateways"
-  default     = "envoyproxy/envoy-alpine:v1.18.3"
+  default     = "envoyproxy/envoy-alpine:v1.18.4"
 }
 
 variable "consul_domain" {
