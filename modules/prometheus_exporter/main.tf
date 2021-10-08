@@ -187,6 +187,6 @@ locals {
       var.tls_enabled && var.tls_enable_auto_encrypt ? [local.exporter_connect] : [],
     ))
 
-    pod_annotations = jsonencode(var.pod_annotations)
+    pod_annotations = jsonencode(var.exporter_pod_annotations)
   }
 }
