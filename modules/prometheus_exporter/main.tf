@@ -186,5 +186,7 @@ locals {
     extra_containers = jsonencode(concat(var.exporter_extra_containers,
       var.tls_enabled && var.tls_enable_auto_encrypt ? [local.exporter_connect] : [],
     ))
+
+    pod_annotations = jsonencode(var.pod_annotations)
   }
 }

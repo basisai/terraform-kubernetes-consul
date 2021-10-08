@@ -162,3 +162,9 @@ variable "exporter_extra_containers" {
   description = "Extra extra Containers"
   default     = []
 }
+
+variable "exporter_pod_annotations" {
+  description = "Annotations for Exporter Pods"
+  type        = map(string)
+  default     = {}
+}

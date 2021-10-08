@@ -43,6 +43,7 @@ No modules.
 | <a name="input_exporter_image"></a> [exporter\_image](#input\_exporter\_image) | Docker image for Consul Exporter | `string` | `"prom/consul-exporter"` | no |
 | <a name="input_exporter_init_containers"></a> [exporter\_init\_containers](#input\_exporter\_init\_containers) | Extra Init Containers | `list` | `[]` | no |
 | <a name="input_exporter_options"></a> [exporter\_options](#input\_exporter\_options) | Arguments for Exporter. See https://github.com/prometheus/consul_exporter#flags | `map` | `{}` | no |
+| <a name="input_exporter_pod_annotations"></a> [exporter\_pod\_annotations](#input\_exporter\_pod\_annotations) | Annotations for Exporter Pods | `map(string)` | `{}` | no |
 | <a name="input_exporter_psp"></a> [exporter\_psp](#input\_exporter\_psp) | Create PSP resources for Exporter | `bool` | `true` | no |
 | <a name="input_exporter_rbac_enabled"></a> [exporter\_rbac\_enabled](#input\_exporter\_rbac\_enabled) | Create RBAC resources for Exporter | `bool` | `true` | no |
 | <a name="input_exporter_release_name"></a> [exporter\_release\_name](#input\_exporter\_release\_name) | Name of the Consul Exporter Chart Release | `string` | `"consul-exporter"` | no |
