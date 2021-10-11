@@ -109,20 +109,19 @@ You can do so by running `kubectl get configmap/coredns -n kube-system -o yaml`.
 | Name | Source | Version |
 |------|--------|---------|
 | <a name="module_esm"></a> [esm](#module\_esm) | ./modules/esm |  |
+| <a name="module_prometheus_exporter"></a> [prometheus\_exporter](#module\_prometheus\_exporter) | ./modules/prometheus_exporter |  |
 
 ## Resources
 
 | Name | Type |
 |------|------|
 | [helm_release.consul](https://registry.terraform.io/providers/hashicorp/helm/latest/docs/resources/release) | resource |
-| [helm_release.consul_exporter](https://registry.terraform.io/providers/hashicorp/helm/latest/docs/resources/release) | resource |
 | [kubernetes_config_map.consul_core_dns](https://registry.terraform.io/providers/hashicorp/kubernetes/latest/docs/resources/config_map) | resource |
 | [kubernetes_config_map.consul_kube_dns](https://registry.terraform.io/providers/hashicorp/kubernetes/latest/docs/resources/config_map) | resource |
 | [kubernetes_secret.secrets](https://registry.terraform.io/providers/hashicorp/kubernetes/latest/docs/resources/secret) | resource |
 | [null_resource.consul_values](https://registry.terraform.io/providers/hashicorp/null/latest/docs/resources/resource) | resource |
 | [kubernetes_service.consul_dns](https://registry.terraform.io/providers/hashicorp/kubernetes/latest/docs/data-sources/service) | data source |
 | [template_file.consul_core_dns](https://registry.terraform.io/providers/hashicorp/template/latest/docs/data-sources/file) | data source |
-| [template_file.exporter_values](https://registry.terraform.io/providers/hashicorp/template/latest/docs/data-sources/file) | data source |
 
 ## Inputs
 
@@ -242,6 +241,7 @@ You can do so by running `kubectl get configmap/coredns -n kube-system -o yaml`.
 | <a name="input_exporter_image"></a> [exporter\_image](#input\_exporter\_image) | Docker image for Consul Exporter | `string` | `"prom/consul-exporter"` | no |
 | <a name="input_exporter_init_containers"></a> [exporter\_init\_containers](#input\_exporter\_init\_containers) | Extra Init Containers | `list` | `[]` | no |
 | <a name="input_exporter_options"></a> [exporter\_options](#input\_exporter\_options) | Arguments for Exporter. See https://github.com/prometheus/consul_exporter#flags | `map` | `{}` | no |
+| <a name="input_exporter_pod_annotations"></a> [exporter\_pod\_annotations](#input\_exporter\_pod\_annotations) | Annotations for Exporter Pods | `map(string)` | `{}` | no |
 | <a name="input_exporter_psp"></a> [exporter\_psp](#input\_exporter\_psp) | Create PSP resources for Exporter | `bool` | `true` | no |
 | <a name="input_exporter_rbac_enabled"></a> [exporter\_rbac\_enabled](#input\_exporter\_rbac\_enabled) | Create RBAC resources for Exporter | `bool` | `true` | no |
 | <a name="input_exporter_release_name"></a> [exporter\_release\_name](#input\_exporter\_release\_name) | Name of the Consul Exporter Chart Release | `string` | `"consul-exporter"` | no |

@@ -1236,6 +1236,12 @@ variable "exporter_extra_containers" {
   default     = []
 }
 
+variable "exporter_pod_annotations" {
+  description = "Annotations for Exporter Pods"
+  type        = map(string)
+  default     = {}
+}
+
 ###########################
 # Consul Connect Metrics
 ###########################
