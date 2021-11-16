@@ -128,7 +128,7 @@ locals {
     connect_inject_resources      = jsonencode(var.connect_inject_resources)
     connect_inject_priority_class = var.connect_inject_priority_class
 
-    connect_inject_namespace_selector = var.connect_inject_namespace_selector != null ? var.connect_inject_namespace_selector : "null"
+    connect_inject_namespace_selector = var.connect_inject_namespace_selector != null ? jsonencode(var.connect_inject_namespace_selector) : "null"
     connect_inject_allowed_namespaces = jsonencode(var.connect_inject_allowed_namespaces)
     connect_inject_denied_namespaces  = jsonencode(var.connect_inject_denied_namespaces)
     connect_inject_log_level          = var.connect_inject_log_level
