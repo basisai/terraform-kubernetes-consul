@@ -15,7 +15,7 @@ variable "chart_repository" {
 
 variable "chart_version" {
   description = "Version of Chart to install. Set to empty to install the latest version"
-  default     = "0.33.0"
+  default     = "0.36.0"
 }
 
 variable "chart_namespace" {
@@ -55,7 +55,7 @@ variable "consul_image_name" {
 
 variable "consul_image_tag" {
   description = "Docker image tag of Consul to run"
-  default     = "1.10.2"
+  default     = "1.10.4"
 }
 
 variable "consul_k8s_image" {
@@ -65,7 +65,7 @@ variable "consul_k8s_image" {
 
 variable "consul_k8s_tag" {
   description = "Image tag of the consul-k8s binary to run"
-  default     = "0.34.1"
+  default     = "0.36.0"
 }
 
 variable "image_envoy" {
@@ -496,7 +496,12 @@ variable "connect_inject_by_default" {
 
 variable "connect_inject_namespace_selector" {
   description = "A YAML string selector for restricting injection to only matching namespaces. By default all namespaces except the system namespace will have injection enabled."
-  default     = null
+  default     = <<-EOF
+    matchExpressions:
+      - key: "kubernetes.io/metadata.name"
+        operator: "NotIn"
+        values: ["kube-system","local-path-storage"]
+    EOF
 }
 
 variable "connect_inject_allowed_namespaces" {
