@@ -15,7 +15,7 @@ variable "chart_repository" {
 
 variable "chart_version" {
   description = "Version of Chart to install. Set to empty to install the latest version"
-  default     = "0.36.0"
+  default     = "0.39.0"
 }
 
 variable "chart_namespace" {
@@ -55,7 +55,7 @@ variable "consul_image_name" {
 
 variable "consul_image_tag" {
   description = "Docker image tag of Consul to run"
-  default     = "1.10.4"
+  default     = "1.11.1"
 }
 
 variable "consul_k8s_image" {
@@ -70,7 +70,7 @@ variable "consul_k8s_tag" {
 
 variable "image_envoy" {
   description = "Image and tag for Envoy Docker image to use for sidecar proxies, mesh, terminating and ingress gateways"
-  default     = "envoyproxy/envoy-alpine:v1.18.4"
+  default     = "envoyproxy/envoy-alpine:v1.20.0"
 }
 
 variable "consul_domain" {
